@@ -52,48 +52,68 @@ class Amoebot:
     def __init__(self, row, col):
         self.row = row
         self.col = col
-        self.target = None
-        self.expanding = True
+        self.from_pos = (row, col)
+        self.to_pos = (row, col)
         self.color = [random.randint(50, 255) for _ in range(3)]
-        self.timer = 0
-        self.move_delay = 15  # Lassabb mozgás
+        self.phase = "idle"  # idle, phase1, phase2
+        self.progress = 0.0
+        self.speed = 0.02
 
     def update(self):
-        self.timer += 1
-        if self.timer < self.move_delay:
-            return
-        self.timer = 0
-
-        if self.target is None and self.expanding:
+        if self.phase == "idle":
             neighbors = get_neighbors(self.row, self.col)
             if neighbors:
-                self.target = random.choice(neighbors)
-        elif not self.expanding:
-            self.row, self.col = self.target
-            self.target = None
-        self.expanding = not self.expanding
+                target = random.choice(neighbors)
+                self.from_pos = (self.row, self.col)
+                self.to_pos = target
+                self.phase = "phase1"
+                self.progress = 0.0
+
+        elif self.phase == "phase1":
+            self.progress += self.speed
+            if self.progress >= 1.0:
+                self.progress = 0.0
+                self.phase = "phase2"
+
+        elif self.phase == "phase2":
+            self.progress += self.speed
+            if self.progress >= 1.0:
+                self.row, self.col = self.to_pos
+                self.phase = "idle"
+                self.progress = 0.0
 
     def draw(self, surface):
-        p1 = grid_points[self.row][self.col]
-        if self.target:
-            p2 = grid_points[self.target[0]][self.target[1]]
-            center = ((p1[0]+p2[0])//2, (p1[1]+p2[1])//2)
-            dx = p2[0] - p1[0]
-            dy = p2[1] - p1[1]
-            angle = math.atan2(dy, dx)
+        p1 = grid_points[self.from_pos[0]][self.from_pos[1]]
+        p2 = grid_points[self.to_pos[0]][self.to_pos[1]]
+
+        if self.phase == "idle":
+            pygame.draw.circle(surface, self.color, p1, 10)
+        else:
+            if self.phase == "phase1":
+                f1 = (p1[0] + (p2[0] - p1[0]) * self.progress,
+                      p1[1] + (p2[1] - p1[1]) * self.progress)
+                f2 = p2
+            elif self.phase == "phase2":
+                f1 = p2
+                f2 = (p1[0] + (p2[0] - p1[0]) * (1 - self.progress),
+                      p1[1] + (p2[1] - p1[1]) * (1 - self.progress))
+            else:
+                f1 = f2 = p1
+
+            dx = f2[0] - f1[0]
+            dy = f2[1] - f1[1]
             length = math.hypot(dx, dy)
+            angle = math.atan2(dy, dx)
             ellipse_rect = pygame.Rect(0, 0, length, 20)
-            ellipse_rect.center = center
+            ellipse_rect.center = ((f1[0] + f2[0]) // 2, (f1[1] + f2[1]) // 2)
             rotated_surf = pygame.Surface((length, 20), pygame.SRCALPHA)
             pygame.draw.ellipse(rotated_surf, self.color, rotated_surf.get_rect())
             rotated_surf = pygame.transform.rotate(rotated_surf, -math.degrees(angle))
-            rotated_rect = rotated_surf.get_rect(center=center)
+            rotated_rect = rotated_surf.get_rect(center=ellipse_rect.center)
             surface.blit(rotated_surf, rotated_rect)
-        else:
-            pygame.draw.circle(surface, self.color, p1, 10)
 
 # Amoebotok színtér katalógus
-amoebots = [Amoebot(random.randint(0, GRID_ROWS-1), random.randint(0, GRID_COLS-1)) for _ in range(5)]
+amoebots = [Amoebot(random.randint(0, GRID_ROWS - 1), random.randint(0, GRID_COLS - 1)) for _ in range(5)]
 
 # Fő szimulációs loop
 while True:
