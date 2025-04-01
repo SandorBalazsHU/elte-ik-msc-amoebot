@@ -79,6 +79,7 @@ class Amoebot:
             self.progress += self.speed
             if self.progress >= 1.0:
                 self.row, self.col = self.to_pos
+                self.from_pos = self.to_pos
                 self.phase = "idle"
                 self.progress = 0.0
 
