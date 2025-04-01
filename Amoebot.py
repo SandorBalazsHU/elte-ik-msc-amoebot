@@ -92,11 +92,11 @@ class Amoebot:
             if self.phase == "phase1":
                 f1 = (p1[0] + (p2[0] - p1[0]) * self.progress,
                       p1[1] + (p2[1] - p1[1]) * self.progress)
-                f2 = p2
+                f2 = p1
             elif self.phase == "phase2":
                 f1 = p2
-                f2 = (p1[0] + (p2[0] - p1[0]) * (1 - self.progress),
-                      p1[1] + (p2[1] - p1[1]) * (1 - self.progress))
+                f2 = (p1[0] + (p2[0] - p1[0]) * self.progress,
+                    p1[1] + (p2[1] - p1[1]) * self.progress)
             else:
                 f1 = f2 = p1
 
