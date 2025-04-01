@@ -8,10 +8,8 @@ WIDTH, HEIGHT = 800, 600
 BACKGROUND_COLOR = (30, 30, 30)
 GRID_COLOR = (80, 80, 80)
 NODE_COLOR = (180, 180, 180)
-AMOEBOT_COLOR = (0, 255, 0)
 NODE_RADIUS = 5
 EDGE_WIDTH = 1
-ELLIPSE_WIDTH = 3
 FPS = 30
 
 # Háromszögrács létrehozása
@@ -56,8 +54,16 @@ class Amoebot:
         self.col = col
         self.target = None
         self.expanding = True
+        self.color = [random.randint(50, 255) for _ in range(3)]
+        self.timer = 0
+        self.move_delay = 15  # Lassabb mozgás
 
     def update(self):
+        self.timer += 1
+        if self.timer < self.move_delay:
+            return
+        self.timer = 0
+
         if self.target is None and self.expanding:
             neighbors = get_neighbors(self.row, self.col)
             if neighbors:
@@ -79,12 +85,12 @@ class Amoebot:
             ellipse_rect = pygame.Rect(0, 0, length, 20)
             ellipse_rect.center = center
             rotated_surf = pygame.Surface((length, 20), pygame.SRCALPHA)
-            pygame.draw.ellipse(rotated_surf, AMOEBOT_COLOR, rotated_surf.get_rect(), ELLIPSE_WIDTH)
+            pygame.draw.ellipse(rotated_surf, self.color, rotated_surf.get_rect())
             rotated_surf = pygame.transform.rotate(rotated_surf, -math.degrees(angle))
             rotated_rect = rotated_surf.get_rect(center=center)
             surface.blit(rotated_surf, rotated_rect)
         else:
-            pygame.draw.circle(surface, AMOEBOT_COLOR, p1, 10)
+            pygame.draw.circle(surface, self.color, p1, 10)
 
 # Amoebotok színtér katalógus
 amoebots = [Amoebot(random.randint(0, GRID_ROWS-1), random.randint(0, GRID_COLS-1)) for _ in range(5)]
