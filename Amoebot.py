@@ -58,16 +58,21 @@ class Amoebot:
         self.phase = "idle"  # idle, phase1, phase2
         self.progress = 0.0
         self.speed = 0.02
+        self.idle_timer = 0
+        self.idle_delay = 15  # várakozás képkockákban
 
     def update(self):
         if self.phase == "idle":
-            neighbors = get_neighbors(self.row, self.col)
-            if neighbors:
-                target = random.choice(neighbors)
-                self.from_pos = (self.row, self.col)
-                self.to_pos = target
-                self.phase = "phase1"
-                self.progress = 0.0
+            self.idle_timer += 1
+            if self.idle_timer >= self.idle_delay:
+                neighbors = get_neighbors(self.row, self.col)
+                if neighbors:
+                    target = random.choice(neighbors)
+                    self.from_pos = (self.row, self.col)
+                    self.to_pos = target
+                    self.phase = "phase1"
+                    self.progress = 0.0
+                    self.idle_timer = 0  # visszaállítjuk
 
         elif self.phase == "phase1":
             self.progress += self.speed
@@ -82,6 +87,7 @@ class Amoebot:
                 self.from_pos = self.to_pos
                 self.phase = "idle"
                 self.progress = 0.0
+                self.idle_timer = 0  # itt is
 
     def draw(self, surface):
         p1 = grid_points[self.from_pos[0]][self.from_pos[1]]
