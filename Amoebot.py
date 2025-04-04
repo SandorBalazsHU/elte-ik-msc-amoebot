@@ -3,7 +3,6 @@ import pygame.gfxdraw
 import sys
 import math
 import random
-
 class Simulation:
     def __init__(self):
         self.WIDTH, self.HEIGHT = 800, 600
@@ -35,7 +34,8 @@ class Simulation:
         self.drawer = AntiAliasedDrawer(self.screen)
         self.clock = pygame.time.Clock()
         if self.RANDOM_START:
-            self.amoebots = [Amoebot(self.triangle_map, random.randint(0, self.GRID_ROWS - 1), random.randint(0, self.GRID_COLS - 1)) for _ in range(self.BOT_NUMBER)]
+            self.amoebots = [Amoebot(self.triangle_map, random.randint(0, self.GRID_ROWS - 1),
+                                      random.randint(0, self.GRID_COLS - 1)) for _ in range(self.BOT_NUMBER)]
         else:
             for i in range(1,self.BOT_NUMBER + 1):
                 self.amoebots.append(Amoebot(self.triangle_map, i, 1))
@@ -54,13 +54,11 @@ class Simulation:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-
             self.screen.fill(self.BACKGROUND_COLOR)
             self._draw_triangle_grid()
             for amoebot in self.amoebots:
                 amoebot.update()
                 amoebot.draw(self.drawer)
-
             pygame.display.flip()
             self.clock.tick(self.FPS)
 class TriangleMap:
@@ -98,7 +96,6 @@ class TriangleMap:
             if 0 <= nr < self.row and 0 <= nc < self.col:
                 triangle_neighbors.append((nr, nc))
         return triangle_neighbors
-    
 class Amoebot():
     def __init__(self, triangle_map:TriangleMap,  row: int, col:int):
         self.triangle_map = triangle_map
@@ -110,6 +107,7 @@ class Amoebot():
         self.color = [random.randint(50, 255) for _ in range(3)]
         self.EYE_COLOR = (255, 255, 255)
         self.EYE_SIZE = 2
+        self.EYE_ON = True
         self.phase = "idle"
         self.progress = 0.0
         self.speed = 0.02
@@ -134,24 +132,18 @@ class Amoebot():
                     self.phase = "phase1"
                     self.progress = 0.0
                     self.idle_timer = 0
-
         elif self.phase == "phase1":
             self.progress += self.speed
             if self.progress >= 1.0:
                 self.progress = 0.0
                 self.phase = "phase2"
-
-                # Mentjük az aktuális f1 pozíciót
                 p1 = self.triangle_map.triangle_grid[self.from_pos[0]][self.from_pos[1]]
                 p2 = self.triangle_map.triangle_grid[self.to_pos[0]][self.to_pos[1]]
                 dist = math.dist(p1, p2)
                 offset = self.CIRCLE_SIZE / dist
                 t = 1.0 * (1 + offset)
-                self.phase2_f1 = (
-                    p1[0] + (p2[0] - p1[0]) * t,
-                    p1[1] + (p2[1] - p1[1]) * t
-                )
-
+                self.phase2_f1 = (p1[0] + (p2[0] - p1[0]) * t,
+                                  p1[1] + (p2[1] - p1[1]) * t)
         elif self.phase == "phase2":
             self.progress += self.speed
             if self.progress >= 1.0:
@@ -164,63 +156,39 @@ class Amoebot():
     def draw(self, drawer):
         p1 = self.triangle_map.triangle_grid[self.from_pos[0]][self.from_pos[1]]
         p2 = self.triangle_map.triangle_grid[self.to_pos[0]][self.to_pos[1]]
-
         if self.phase == "idle":
             drawer.draw_circle(self.color, p2, self.CIRCLE_SIZE)
-            drawer.draw_circle(self.EYE_COLOR, p2, self.EYE_SIZE)
+            if self.EYE_ON:
+                drawer.draw_circle(self.EYE_COLOR, p2, self.EYE_SIZE)
         else:
             dist = math.dist(p1, p2)
             offset = self.CIRCLE_SIZE / dist
-
             if self.phase == "phase1":
-                # Mozgás iránya
                 dx = p2[0] - p1[0]
                 dy = p2[1] - p1[1]
                 dist = math.hypot(dx, dy)
                 offset = self.CIRCLE_SIZE / dist
-
-                # f1 indul p1 + offset irányban → megy előre
-                f1_start = (
-                    p1[0] + dx * offset,
-                    p1[1] + dy * offset
-                )
-
-                # f1 végállapota túlnyúlással
-                f1_end = (
-                    p1[0] + dx * (1 + offset),
-                    p1[1] + dy * (1 + offset)
-                )
-
-                # f1 progress alapján halad a kezdő és végpont között
-                f1 = (
-                    f1_start[0] + (f1_end[0] - f1_start[0]) * self.progress,
-                    f1_start[1] + (f1_end[1] - f1_start[1]) * self.progress
-                )
-
-                # f2 mindig a p1 irányával ellentétes offset-tel indul, és nem mozdul
-                f2 = (
-                    p1[0] - dx * offset,
-                    p1[1] - dy * offset
-                )
-
-                self.phase2_f1 = f1_end  # a végső f1, ahol f1 marad phase2-ben
-
+                f1_start = (p1[0] + dx * offset,
+                            p1[1] + dy * offset)
+                f1_end = (p1[0] + dx * (1 + offset),
+                          p1[1] + dy * (1 + offset))
+                f1 = (f1_start[0] + (f1_end[0] - f1_start[0]) * self.progress,
+                      f1_start[1] + (f1_end[1] - f1_start[1]) * self.progress)
+                f2 = (p1[0] - dx * offset, 
+                      p1[1] - dy * offset)
+                self.phase2_f1 = f1_end
             elif self.phase == "phase2":
-                # f1 marad a túlnyúló végponton, f2 húzódik fel rá
                 f1 = self.phase2_f1
                 t = self.progress * (1 - offset)
                 f2 = (p1[0] + (p2[0] - p1[0]) * t,
                     p1[1] + (p2[1] - p1[1]) * t)
-
             else:
-                f1 = f2 = p1  # biztonsági ág
-
+                f1 = f2 = p1
             drawer.draw_ellipse(f1, f2, self.color)
-
-            # Kis szem (opcionális)
-            eye_x = f1[0] + (f2[0] - f1[0]) * 0.1
-            eye_y = f1[1] + (f2[1] - f1[1]) * 0.1
-            drawer.draw_circle((255, 255, 255), (eye_x, eye_y), 2)
+            if self.EYE_ON:
+                eye_x = f1[0] + (f2[0] - f1[0]) * 0.1
+                eye_y = f1[1] + (f2[1] - f1[1]) * 0.1
+                drawer.draw_circle((255, 255, 255), (eye_x, eye_y), 2)
 class AntiAliasedDrawer:
     def __init__(self, surface):
         self.surface = surface
@@ -241,25 +209,14 @@ class AntiAliasedDrawer:
         dy = f2[1] - f1[1]
         length = math.hypot(dx, dy)
         angle = math.atan2(dy, dx)
-
-        # A középpont, ahova el akarjuk helyezni
         center = ((f1[0] + f2[0]) / 2, (f1[1] + f2[1]) / 2)
-
-        # Upscale méret
-        upscale = 6  # nagyobb skálázás jobb simítás
+        upscale = 6 
         big_width = int(length * upscale)
         big_height = 20 * upscale
-
         big_surf = pygame.Surface((big_width, big_height), pygame.SRCALPHA)
         pygame.draw.ellipse(big_surf, color, big_surf.get_rect())
-
-        # Először smoothscale a végleges méretre
         small_surf = pygame.transform.smoothscale(big_surf, (int(length), 20))
-
-        # Ezután forgatjuk, DE figyelem: most a forgatás megváltoztatja a méretet
         rotated_surf = pygame.transform.rotozoom(small_surf, -math.degrees(angle), 1.0)
-
-        # Helyes pozíció: forgatott kép közepét a f1–f2 középre igazítjuk
         rotated_rect = rotated_surf.get_rect(center=center)
         self.surface.blit(rotated_surf, rotated_rect)
 
