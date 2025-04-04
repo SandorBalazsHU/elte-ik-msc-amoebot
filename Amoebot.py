@@ -42,11 +42,11 @@ class Simulation:
     
     def _draw_triangle_grid(self):
         for r, row in enumerate(self.triangle_map.triangle_grid):
-            for c, p in enumerate(row):
-                self.drawer.draw_circle(self.NODE_COLOR, p, self.NODE_RADIUS)
+            for c, point in enumerate(row):
+                self.drawer.draw_circle(self.NODE_COLOR, point, self.NODE_RADIUS)
                 for nr, nc in self.triangle_map.get_neighbors(r, c):
                     neighbor = self.triangle_map.triangle_grid[nr][nc]
-                    self.drawer.draw_line(self.GRID_COLOR, p, neighbor, self.EDGE_WIDTH)
+                    self.drawer.draw_line(self.GRID_COLOR, point, neighbor, self.EDGE_WIDTH)
 
     def start(self):
         while True:
@@ -150,6 +150,7 @@ class Amoebot():
 
         if self.phase == "idle":
             drawer.draw_circle(self.color, p1, 10)
+            print()
         else:
             if self.phase == "phase1":
                 f1 = (p1[0] + (p2[0] - p1[0]) * self.progress,
@@ -163,6 +164,14 @@ class Amoebot():
                 f1 = f2 = p1
 
             drawer.draw_ellipse(f1, f2, self.color)
+        
+            # Irányjelző kis pötty
+            #drawer.draw_circle((255, 255, 255), f1, 3)
+
+            eye_offset = 8  # egy kicsit előre a tengely mentén
+            eye_x = f1[0] + (f2[0] - f1[0]) * 0.1
+            eye_y = f1[1] + (f2[1] - f1[1]) * 0.1
+            drawer.draw_circle((255, 255, 255), (eye_x, eye_y), 2)
 class AntiAliasedDrawer:
     def __init__(self, surface):
         self.surface = surface
