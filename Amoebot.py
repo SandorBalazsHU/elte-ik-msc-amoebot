@@ -117,6 +117,7 @@ class Amoebot():
         self.idle_delay = 15
         self.target = (0,0)
         self.heading = 3
+        self.RANDOM_HEADING = True
 
     def update(self):
         if self.phase == "idle":
@@ -124,8 +125,10 @@ class Amoebot():
             if self.idle_timer >= self.idle_delay:
                 neighbors = self.triangle_map.get_neighbors(self.row, self.col)
                 if neighbors:
-                    target = random.choice(neighbors)
-                    #target = neighbors[self.heading]
+                    if(self.RANDOM_HEADING):
+                        target = random.choice(neighbors)
+                    else:
+                        target = neighbors[self.heading]
                     self.from_pos = (self.row, self.col)
                     self.to_pos = target
                     self.phase = "phase1"
