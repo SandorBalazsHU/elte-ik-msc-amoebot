@@ -104,6 +104,7 @@ class Amoebot():
         self.triangle_map = triangle_map
         self.row = row
         self.col = col
+        self.CIRCLE_SIZE = 10
         self.from_pos = (self.row, self.col)
         self.to_pos = (self.row, self.col)
         self.color = [random.randint(50, 255) for _ in range(3)]
@@ -135,6 +136,17 @@ class Amoebot():
                 self.progress = 0.0
                 self.phase = "phase2"
 
+                # Mentjük az aktuális f1 pozíciót
+                p1 = self.triangle_map.triangle_grid[self.from_pos[0]][self.from_pos[1]]
+                p2 = self.triangle_map.triangle_grid[self.to_pos[0]][self.to_pos[1]]
+                dist = math.dist(p1, p2)
+                offset = self.CIRCLE_SIZE / dist
+                t = 1.0 * (1 + offset)
+                self.phase2_f1 = (
+                    p1[0] + (p2[0] - p1[0]) * t,
+                    p1[1] + (p2[1] - p1[1]) * t
+                )
+
         elif self.phase == "phase2":
             self.progress += self.speed
             if self.progress >= 1.0:
@@ -149,26 +161,35 @@ class Amoebot():
         p2 = self.triangle_map.triangle_grid[self.to_pos[0]][self.to_pos[1]]
 
         if self.phase == "idle":
-            drawer.draw_circle(self.color, p1, 10)
-            print()
+            drawer.draw_circle(self.color, p2, self.CIRCLE_SIZE)
+
         else:
+            dist = math.dist(p1, p2)
+            offset = self.CIRCLE_SIZE / dist
+
             if self.phase == "phase1":
-                f1 = (p1[0] + (p2[0] - p1[0]) * self.progress,
-                    p1[1] + (p2[1] - p1[1]) * self.progress)
+                # f1 kinyúlik a célponton túl, f2 marad p1-en
+                t = self.progress * (1 + offset)
+                f1 = (p1[0] + (p2[0] - p1[0]) * t,
+                    p1[1] + (p2[1] - p1[1]) * t)
                 f2 = p1
+
+                # elmentjük f1-et, hogy a következő fázis folytatólagos legyen
+                self.phase2_f1 = f1
+
             elif self.phase == "phase2":
-                f1 = p2
-                f2 = (p1[0] + (p2[0] - p1[0]) * self.progress,
-                    p1[1] + (p2[1] - p1[1]) * self.progress)
+                # f1 marad a túlnyúló végponton, f2 húzódik fel rá
+                f1 = self.phase2_f1
+                t = self.progress * (1 - offset)
+                f2 = (p1[0] + (p2[0] - p1[0]) * t,
+                    p1[1] + (p2[1] - p1[1]) * t)
+
             else:
-                f1 = f2 = p1
+                f1 = f2 = p1  # biztonsági ág
 
             drawer.draw_ellipse(f1, f2, self.color)
-        
-            # Irányjelző kis pötty
-            #drawer.draw_circle((255, 255, 255), f1, 3)
 
-            eye_offset = 8  # egy kicsit előre a tengely mentén
+            # Kis szem (opcionális)
             eye_x = f1[0] + (f2[0] - f1[0]) * 0.1
             eye_y = f1[1] + (f2[1] - f1[1]) * 0.1
             drawer.draw_circle((255, 255, 255), (eye_x, eye_y), 2)
