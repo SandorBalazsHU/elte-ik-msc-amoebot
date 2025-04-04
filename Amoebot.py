@@ -68,7 +68,17 @@ class TriangleMap:
         self.col = col
         self.node_distance = node_distance
         self.triangle_grid = []
+        self.occupied = [[False for _ in range(col)] for _ in range(row)]
         self.__generate_triangle_grid()
+
+    def is_occupied(self, row, col):
+        return self.occupied[row][col]
+
+    def occupy(self, row, col):
+        self.occupied[row][col] = True
+
+    def release(self, row, col):
+        self.occupied[row][col] = False
 
     def get_window_size(self):
         size = [0,0]
@@ -119,10 +129,18 @@ class Amoebot():
 
     def _target_select(self):
         neighbors = self.triangle_map.get_neighbors(self.row, self.col)
-        if(self.RANDOM_HEADING):
-            self.target = random.choice(neighbors)
+        free_neighbors = [n for n in neighbors if not self.triangle_map.is_occupied(*n)]
+        if not free_neighbors:
+            return False  # nincs hova menni
+        if self.RANDOM_HEADING:
+            self.target = random.choice(free_neighbors)
         else:
-            self.target = neighbors[self.heading]
+            # ha az eredeti irány foglalt, próbál mást
+            if self.triangle_map.is_occupied(*neighbors[self.heading]):
+                self.target = random.choice(free_neighbors)
+            else:
+                self.target = neighbors[self.heading]
+        return True
 
     def update(self):
         if self.phase == "idle":
@@ -131,6 +149,7 @@ class Amoebot():
                 self._target_select()
                 self.from_pos = (self.row, self.col)
                 self.to_pos = self.target
+                self.triangle_map.occupy(*self.to_pos)  # előre lefoglaljuk
                 self.phase = "phase1"
                 self.progress = 0.0
                 self.idle_timer = 0
@@ -151,6 +170,7 @@ class Amoebot():
         elif self.phase == "phase2":
             self.progress += self.speed
             if self.progress >= 1.0:
+                self.triangle_map.release(*self.from_pos)
                 self.row, self.col = self.to_pos
                 self.from_pos = self.to_pos
                 self.phase = "idle"
