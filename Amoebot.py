@@ -108,6 +108,8 @@ class Amoebot():
         self.from_pos = (self.row, self.col)
         self.to_pos = (self.row, self.col)
         self.color = [random.randint(50, 255) for _ in range(3)]
+        self.EYE_COLOR = (255, 255, 255)
+        self.EYE_SIZE = 2
         self.phase = "idle"
         self.progress = 0.0
         self.speed = 0.02
@@ -162,7 +164,7 @@ class Amoebot():
 
         if self.phase == "idle":
             drawer.draw_circle(self.color, p2, self.CIRCLE_SIZE)
-
+            drawer.draw_circle(self.EYE_COLOR, p2, self.EYE_SIZE)
         else:
             dist = math.dist(p1, p2)
             offset = self.CIRCLE_SIZE / dist
