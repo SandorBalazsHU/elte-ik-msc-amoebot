@@ -15,6 +15,8 @@ class Simulation:
         self.GRID_ROWS = 15
         self.GRID_COLS = 15
         self.NODE_DISTANCE = 50
+        self.RANDOM_START = False
+        self.BOT_NUMBER = 12
         self.screan = 0
         self.clock = 0
         self.triangle_map = []
@@ -29,7 +31,12 @@ class Simulation:
         self.HEIGHT = size[1]
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         self.clock = pygame.time.Clock()
-        self.amoebots = [Amoebot(self.triangle_map, random.randint(0, self.GRID_ROWS - 1), random.randint(0, self.GRID_COLS - 1)) for _ in range(5)]
+        if self.RANDOM_START:
+            self.amoebots = [Amoebot(self.triangle_map, random.randint(0, self.GRID_ROWS - 1), random.randint(0, self.GRID_COLS - 1)) for _ in range(self.BOT_NUMBER)]
+        else:
+            for i in range(1,self.BOT_NUMBER + 1):
+                self.amoebots.append(Amoebot(self.triangle_map, i, 1))
+
     
     def _draw_triangle_grid(self):
         for r, row in enumerate(self.triangle_map.triangle_grid):
@@ -103,6 +110,8 @@ class Amoebot():
         self.speed = 0.02
         self.idle_timer = 0
         self.idle_delay = 15
+        self.target = (0,0)
+        self.heading = 3
 
     def update(self):
         if self.phase == "idle":
@@ -110,7 +119,8 @@ class Amoebot():
             if self.idle_timer >= self.idle_delay:
                 neighbors = self.triangle_map.get_neighbors(self.row, self.col)
                 if neighbors:
-                    target = random.choice(neighbors)
+                    #target = random.choice(neighbors)
+                    target = neighbors[self.heading]
                     self.from_pos = (self.row, self.col)
                     self.to_pos = target
                     self.phase = "phase1"
