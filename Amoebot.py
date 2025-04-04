@@ -12,23 +12,23 @@ class Simulation:
         self.NODE_RADIUS = 5
         self.EDGE_WIDTH = 1
         self.FPS = 30
-
-        self.GRID_ROWS = 10
-        self.GRID_COLS = 10
+        self.GRID_ROWS = 15
+        self.GRID_COLS = 15
         self.NODE_DISTANCE = 50
-
         self.screan = 0
         self.clock = 0
-
         self.triangle_map = []
         self.amoebots = []
         self.init()
 
     def init(self):
         pygame.init()
+        self.triangle_map = TriangleMap(self.GRID_ROWS,self.GRID_COLS, self.NODE_DISTANCE)
+        size = self.triangle_map.get_window_size()
+        self.WIDTH = size[0]
+        self.HEIGHT = size[1]
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         self.clock = pygame.time.Clock()
-        self.triangle_map = TriangleMap(self.GRID_ROWS,self.GRID_COLS, self.NODE_DISTANCE)
         self.amoebots = [Amoebot(self.triangle_map, random.randint(0, self.GRID_ROWS - 1), random.randint(0, self.GRID_COLS - 1)) for _ in range(5)]
     
     def _draw_triangle_grid(self):
@@ -47,23 +47,28 @@ class Simulation:
                     sys.exit()
 
             self.screen.fill(self.BACKGROUND_COLOR)
-   
             self._draw_triangle_grid()
-            
             for amoebot in self.amoebots:
                 amoebot.update()
                 amoebot.draw(self.screen)
 
             pygame.display.flip()
             self.clock.tick(self.FPS)
-
 class TriangleMap:
     def __init__(self, row:int, col:int, node_distance: int):
+        self.PADDING = 50
         self.row = row
         self.col = col
         self.node_distance = node_distance
         self.triangle_grid = []
         self.__generate_triangle_grid()
+
+    def get_window_size(self):
+        size = [0,0]
+        size_x = (self.PADDING*2) + (self.row*self.node_distance) - (self.node_distance/2)
+        size_y = (self.PADDING) + (self.col*self.node_distance) - (self.node_distance*2)
+        size = [size_x,size_y]
+        return size
 
     def __generate_triangle_grid(self):
         for row in range(self.row):
@@ -71,7 +76,7 @@ class TriangleMap:
             for col in range(self.col):
                 x = col * self.node_distance + (self.node_distance // 2 if row % 2 else 0)
                 y = row * self.node_distance * math.sin(math.radians(60))
-                row_points.append((x + 100, int(y) + 100))
+                row_points.append((x + self.PADDING, int(y) + self.PADDING))
             self.triangle_grid.append(row_points)
 
     def get_neighbors(self, row, col):
@@ -93,11 +98,11 @@ class Amoebot():
         self.from_pos = (self.row, self.col)
         self.to_pos = (self.row, self.col)
         self.color = [random.randint(50, 255) for _ in range(3)]
-        self.phase = "idle"  # idle, phase1, phase2
+        self.phase = "idle"
         self.progress = 0.0
         self.speed = 0.02
         self.idle_timer = 0
-        self.idle_delay = 15  # várakozás képkockákban
+        self.idle_delay = 15
 
     def update(self):
         if self.phase == "idle":
@@ -110,7 +115,7 @@ class Amoebot():
                     self.to_pos = target
                     self.phase = "phase1"
                     self.progress = 0.0
-                    self.idle_timer = 0  # visszaállítjuk
+                    self.idle_timer = 0
 
         elif self.phase == "phase1":
             self.progress += self.speed
@@ -125,7 +130,7 @@ class Amoebot():
                 self.from_pos = self.to_pos
                 self.phase = "idle"
                 self.progress = 0.0
-                self.idle_timer = 0  # itt is
+                self.idle_timer = 0
 
     def draw(self, surface):
         p1 = self.triangle_map.triangle_grid[self.from_pos[0]][self.from_pos[1]]
