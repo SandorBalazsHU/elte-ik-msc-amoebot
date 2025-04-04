@@ -1,4 +1,5 @@
 import pygame
+import pygame.gfxdraw
 import sys
 import math
 import random
@@ -15,13 +16,14 @@ class Simulation:
         self.GRID_ROWS = 15
         self.GRID_COLS = 15
         self.NODE_DISTANCE = 50
-        self.RANDOM_START = False
+        self.RANDOM_START = True
         self.BOT_NUMBER = 12
         self.screan = 0
         self.clock = 0
         self.triangle_map = []
         self.amoebots = []
         self.init()
+        self.drawer: AntiAliasedDrawer
 
     def init(self):
         pygame.init()
@@ -30,21 +32,21 @@ class Simulation:
         self.WIDTH = size[0]
         self.HEIGHT = size[1]
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
+        self.drawer = AntiAliasedDrawer(self.screen)
         self.clock = pygame.time.Clock()
         if self.RANDOM_START:
             self.amoebots = [Amoebot(self.triangle_map, random.randint(0, self.GRID_ROWS - 1), random.randint(0, self.GRID_COLS - 1)) for _ in range(self.BOT_NUMBER)]
         else:
             for i in range(1,self.BOT_NUMBER + 1):
                 self.amoebots.append(Amoebot(self.triangle_map, i, 1))
-
     
     def _draw_triangle_grid(self):
         for r, row in enumerate(self.triangle_map.triangle_grid):
             for c, p in enumerate(row):
-                pygame.draw.circle(self.screen, self.NODE_COLOR, p, self.NODE_RADIUS)
+                self.drawer.draw_circle(self.NODE_COLOR, p, self.NODE_RADIUS)
                 for nr, nc in self.triangle_map.get_neighbors(r, c):
                     neighbor = self.triangle_map.triangle_grid[nr][nc]
-                    pygame.draw.line(self.screen, self.GRID_COLOR, p, neighbor, self.EDGE_WIDTH)
+                    self.drawer.draw_line(self.GRID_COLOR, p, neighbor, self.EDGE_WIDTH)
 
     def start(self):
         while True:
@@ -57,7 +59,7 @@ class Simulation:
             self._draw_triangle_grid()
             for amoebot in self.amoebots:
                 amoebot.update()
-                amoebot.draw(self.screen)
+                amoebot.draw(self.drawer)
 
             pygame.display.flip()
             self.clock.tick(self.FPS)
@@ -119,8 +121,8 @@ class Amoebot():
             if self.idle_timer >= self.idle_delay:
                 neighbors = self.triangle_map.get_neighbors(self.row, self.col)
                 if neighbors:
-                    #target = random.choice(neighbors)
-                    target = neighbors[self.heading]
+                    target = random.choice(neighbors)
+                    #target = neighbors[self.heading]
                     self.from_pos = (self.row, self.col)
                     self.to_pos = target
                     self.phase = "phase1"
@@ -142,16 +144,16 @@ class Amoebot():
                 self.progress = 0.0
                 self.idle_timer = 0
 
-    def draw(self, surface):
+    def draw(self, drawer):
         p1 = self.triangle_map.triangle_grid[self.from_pos[0]][self.from_pos[1]]
         p2 = self.triangle_map.triangle_grid[self.to_pos[0]][self.to_pos[1]]
 
         if self.phase == "idle":
-            pygame.draw.circle(surface, self.color, p1, 10)
+            drawer.draw_circle(self.color, p1, 10)
         else:
             if self.phase == "phase1":
                 f1 = (p1[0] + (p2[0] - p1[0]) * self.progress,
-                      p1[1] + (p2[1] - p1[1]) * self.progress)
+                    p1[1] + (p2[1] - p1[1]) * self.progress)
                 f2 = p1
             elif self.phase == "phase2":
                 f1 = p2
@@ -160,17 +162,48 @@ class Amoebot():
             else:
                 f1 = f2 = p1
 
-            dx = f2[0] - f1[0]
-            dy = f2[1] - f1[1]
-            length = math.hypot(dx, dy)
-            angle = math.atan2(dy, dx)
-            ellipse_rect = pygame.Rect(0, 0, length, 20)
-            ellipse_rect.center = ((f1[0] + f2[0]) // 2, (f1[1] + f2[1]) // 2)
-            rotated_surf = pygame.Surface((length, 20), pygame.SRCALPHA)
-            pygame.draw.ellipse(rotated_surf, self.color, rotated_surf.get_rect())
-            rotated_surf = pygame.transform.rotate(rotated_surf, -math.degrees(angle))
-            rotated_rect = rotated_surf.get_rect(center=ellipse_rect.center)
-            surface.blit(rotated_surf, rotated_rect)
+            drawer.draw_ellipse(f1, f2, self.color)
+class AntiAliasedDrawer:
+    def __init__(self, surface):
+        self.surface = surface
+
+    def draw_circle(self, color, pos, radius):
+        x, y = int(pos[0]), int(pos[1])
+        pygame.gfxdraw.aacircle(self.surface, x, y, radius, color)
+        pygame.gfxdraw.filled_circle(self.surface, x, y, radius, color)
+
+    def draw_line(self, color, start_pos, end_pos, width=1):
+        if width == 1:
+            pygame.draw.aaline(self.surface, color, start_pos, end_pos)
+        else:
+            pygame.draw.line(self.surface, color, start_pos, end_pos, width)
+
+    def draw_ellipse(self, f1, f2, color):
+        dx = f2[0] - f1[0]
+        dy = f2[1] - f1[1]
+        length = math.hypot(dx, dy)
+        angle = math.atan2(dy, dx)
+
+        # A középpont, ahova el akarjuk helyezni
+        center = ((f1[0] + f2[0]) / 2, (f1[1] + f2[1]) / 2)
+
+        # Upscale méret
+        upscale = 6  # nagyobb skálázás jobb simítás
+        big_width = int(length * upscale)
+        big_height = 20 * upscale
+
+        big_surf = pygame.Surface((big_width, big_height), pygame.SRCALPHA)
+        pygame.draw.ellipse(big_surf, color, big_surf.get_rect())
+
+        # Először smoothscale a végleges méretre
+        small_surf = pygame.transform.smoothscale(big_surf, (int(length), 20))
+
+        # Ezután forgatjuk, DE figyelem: most a forgatás megváltoztatja a méretet
+        rotated_surf = pygame.transform.rotozoom(small_surf, -math.degrees(angle), 1.0)
+
+        # Helyes pozíció: forgatott kép közepét a f1–f2 középre igazítjuk
+        rotated_rect = rotated_surf.get_rect(center=center)
+        self.surface.blit(rotated_surf, rotated_rect)
 
 def main():
     simulation = Simulation()
