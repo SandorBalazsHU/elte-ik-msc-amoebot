@@ -117,21 +117,24 @@ class Amoebot():
         self.heading = 3
         self.RANDOM_HEADING = True
 
+    def _target_select(self):
+        neighbors = self.triangle_map.get_neighbors(self.row, self.col)
+        if(self.RANDOM_HEADING):
+            self.target = random.choice(neighbors)
+        else:
+            self.target = neighbors[self.heading]
+
     def update(self):
         if self.phase == "idle":
             self.idle_timer += 1
             if self.idle_timer >= self.idle_delay:
-                neighbors = self.triangle_map.get_neighbors(self.row, self.col)
-                if neighbors:
-                    if(self.RANDOM_HEADING):
-                        target = random.choice(neighbors)
-                    else:
-                        target = neighbors[self.heading]
-                    self.from_pos = (self.row, self.col)
-                    self.to_pos = target
-                    self.phase = "phase1"
-                    self.progress = 0.0
-                    self.idle_timer = 0
+                self._target_select()
+                self.from_pos = (self.row, self.col)
+                self.to_pos = self.target
+                self.phase = "phase1"
+                self.progress = 0.0
+                self.idle_timer = 0
+
         elif self.phase == "phase1":
             self.progress += self.speed
             if self.progress >= 1.0:
@@ -144,6 +147,7 @@ class Amoebot():
                 t = 1.0 * (1 + offset)
                 self.phase2_f1 = (p1[0] + (p2[0] - p1[0]) * t,
                                   p1[1] + (p2[1] - p1[1]) * t)
+                
         elif self.phase == "phase2":
             self.progress += self.speed
             if self.progress >= 1.0:
