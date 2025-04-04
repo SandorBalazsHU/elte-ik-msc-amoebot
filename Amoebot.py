@@ -168,14 +168,37 @@ class Amoebot():
             offset = self.CIRCLE_SIZE / dist
 
             if self.phase == "phase1":
-                # f1 kinyúlik a célponton túl, f2 marad p1-en
-                t = self.progress * (1 + offset)
-                f1 = (p1[0] + (p2[0] - p1[0]) * t,
-                    p1[1] + (p2[1] - p1[1]) * t)
-                f2 = p1
+                # Mozgás iránya
+                dx = p2[0] - p1[0]
+                dy = p2[1] - p1[1]
+                dist = math.hypot(dx, dy)
+                offset = self.CIRCLE_SIZE / dist
 
-                # elmentjük f1-et, hogy a következő fázis folytatólagos legyen
-                self.phase2_f1 = f1
+                # f1 indul p1 + offset irányban → megy előre
+                f1_start = (
+                    p1[0] + dx * offset,
+                    p1[1] + dy * offset
+                )
+
+                # f1 végállapota túlnyúlással
+                f1_end = (
+                    p1[0] + dx * (1 + offset),
+                    p1[1] + dy * (1 + offset)
+                )
+
+                # f1 progress alapján halad a kezdő és végpont között
+                f1 = (
+                    f1_start[0] + (f1_end[0] - f1_start[0]) * self.progress,
+                    f1_start[1] + (f1_end[1] - f1_start[1]) * self.progress
+                )
+
+                # f2 mindig a p1 irányával ellentétes offset-tel indul, és nem mozdul
+                f2 = (
+                    p1[0] - dx * offset,
+                    p1[1] - dy * offset
+                )
+
+                self.phase2_f1 = f1_end  # a végső f1, ahol f1 marad phase2-ben
 
             elif self.phase == "phase2":
                 # f1 marad a túlnyúló végponton, f2 húzódik fel rá
