@@ -15,7 +15,7 @@ class Simulation:
         self.GRID_ROWS = 15
         self.GRID_COLS = 15
         self.NODE_DISTANCE = 50
-        self.RANDOM_START = False
+        self.RANDOM_START = True
         self.screan = 0
         self.clock = 0
         self.triangle_map = []
@@ -35,8 +35,7 @@ class Simulation:
         self.drawer = AntiAliasedDrawer(self.screen)
         self.clock = pygame.time.Clock()
         if self.RANDOM_START:
-            self.amoebots = [Amoebot(self.triangle_map, random.randint(0, self.GRID_ROWS - 1),
-                                      random.randint(0, self.GRID_COLS - 1)) for _ in range(self.BOT_NUMBER)]
+            self.scene.set_scene("scene0")
         else:
             self.scene.set_scene("scene1")
     
@@ -69,6 +68,9 @@ class Scene:
     
     def set_scene(self, scene:str):
         self.simulation.amoebots.clear()
+        if scene == "scene0":
+            self.scene = "scene0"
+            self.scene0()
         if scene == "scene1":
             self.scene = "scene1"
             self.scene1()
@@ -84,7 +86,12 @@ class Scene:
         if scene == "scene5":
             self.scene = "scene5"
             self.scene5()
-    
+
+    def scene0(self):
+        BOT_NUMBER = 30
+        self.simulation.amoebots = [Amoebot(self.simulation.triangle_map, random.randint(0, self.simulation.GRID_ROWS - 1),
+                                      random.randint(0, self.simulation.GRID_COLS - 1)) for _ in range(BOT_NUMBER)]
+
     def scene1(self):
         BOT_NUMBER = 12
         for i in range(1, BOT_NUMBER + 1):
@@ -108,7 +115,7 @@ class Scene:
 
     def scene4(self):
         pass
-    
+
     def scene5(self):
         pass
 
@@ -176,7 +183,7 @@ class Amoebot():
         self.idle_delay = 15
         self.target = (0,0)
         self.heading = 3
-        self.RANDOM_HEADING = False
+        self.RANDOM_HEADING = True
 
     def _target_select(self):
         neighbors = self.triangle_map.get_neighbors(self.row, self.col)
