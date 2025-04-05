@@ -16,17 +16,18 @@ class Simulation:
         self.GRID_COLS = 15
         self.NODE_DISTANCE = 50
         self.RANDOM_START = False
-        self.BOT_NUMBER = 12
         self.screan = 0
         self.clock = 0
         self.triangle_map = []
         self.amoebots = []
-        self.init()
         self.drawer: AntiAliasedDrawer
+        self.scene: Scene
+        self.init()
 
     def init(self):
         pygame.init()
-        self.triangle_map = TriangleMap(self.GRID_ROWS,self.GRID_COLS, self.NODE_DISTANCE)
+        self.scene = Scene(self)
+        self.triangle_map = TriangleMap(self.GRID_ROWS, self.GRID_COLS, self.NODE_DISTANCE)
         size = self.triangle_map.get_window_size()
         self.WIDTH = size[0]
         self.HEIGHT = size[1]
@@ -37,11 +38,7 @@ class Simulation:
             self.amoebots = [Amoebot(self.triangle_map, random.randint(0, self.GRID_ROWS - 1),
                                       random.randint(0, self.GRID_COLS - 1)) for _ in range(self.BOT_NUMBER)]
         else:
-            for i in range(1,self.BOT_NUMBER + 1):
-                self.amoebots.append(Amoebot(self.triangle_map, i, 1))
-                self.amoebots[i-1].heading = -1
-            for i in range(1,self.BOT_NUMBER + 1):
-                self.amoebots.append(Amoebot(self.triangle_map, i, 2))
+            self.scene.set_scene("scene1")
     
     def _draw_triangle_grid(self):
         for r, row in enumerate(self.triangle_map.triangle_grid):
@@ -64,6 +61,57 @@ class Simulation:
                 amoebot.draw(self.drawer)
             pygame.display.flip()
             self.clock.tick(self.FPS)
+
+class Scene:
+    def __init__(self, simulation:Simulation):
+        self.simulation = simulation
+        self.current_scene = ""
+    
+    def set_scene(self, scene:str):
+        self.simulation.amoebots.clear()
+        if scene == "scene1":
+            self.scene = "scene1"
+            self.scene1()
+        if scene == "scene2":
+            self.scene = "scene2"
+            self.scene2()
+        if scene == "scene3":
+            self.scene = "scene3"
+            self.scene3()
+        if scene == "scene4":
+            self.scene = "scene4"
+            self.scene4()
+        if scene == "scene5":
+            self.scene = "scene5"
+            self.scene5()
+    
+    def scene1(self):
+        BOT_NUMBER = 12
+        for i in range(1, BOT_NUMBER + 1):
+            bot = Amoebot(self.simulation.triangle_map, i, 1)
+            self.simulation.amoebots.append(bot)
+            bot.RANDOM_HEADING = True
+        for i in range(1, BOT_NUMBER + 1):
+            bot = Amoebot(self.simulation.triangle_map, i, 1)
+            self.simulation.amoebots.append(bot)
+            bot.RANDOM_HEADING = False
+        for i in range(1, BOT_NUMBER + 1):
+            bot = Amoebot(self.simulation.triangle_map, i, 2)
+            self.simulation.amoebots.append(bot)
+            bot.RANDOM_HEADING = False
+
+    def scene2(self):
+        pass
+
+    def scene3(self):
+        pass
+
+    def scene4(self):
+        pass
+    
+    def scene5(self):
+        pass
+
 class TriangleMap:
     def __init__(self, row:int, col:int, node_distance: int):
         self.PADDING = 50
@@ -138,11 +186,7 @@ class Amoebot():
         if self.RANDOM_HEADING:
             self.target = random.choice(free_neighbors)
         else:
-            # ha az eredeti irány foglalt, próbál mást
-            if self.triangle_map.is_occupied(*neighbors[self.heading]):
-                self.target = random.choice(free_neighbors)
-            else:
-                self.target = neighbors[self.heading]
+            self.target = neighbors[self.heading]
         return True
 
     def update(self):
@@ -150,13 +194,14 @@ class Amoebot():
             if self.heading != -1:
                 self.idle_timer += 1
                 if self.idle_timer >= self.idle_delay:
-                    self._target_select()
-                    self.from_pos = (self.row, self.col)
-                    self.to_pos = self.target
-                    self.triangle_map.occupy(*self.to_pos)  # előre lefoglaljuk
-                    self.phase = "phase1"
-                    self.progress = 0.0
-                    self.idle_timer = 0
+                    if self._target_select():
+                        self.from_pos = (self.row, self.col)
+                        self.to_pos = self.target
+                        self.triangle_map.occupy(*self.to_pos)  # előre lefoglaljuk
+                        self.triangle_map.release(*self.from_pos)
+                        self.phase = "phase1"
+                        self.progress = 0.0
+                        self.idle_timer = 0
 
         elif self.phase == "phase1":
             self.progress += self.speed
@@ -174,7 +219,6 @@ class Amoebot():
         elif self.phase == "phase2":
             self.progress += self.speed
             if self.progress >= 1.0:
-                self.triangle_map.release(*self.from_pos)
                 self.row, self.col = self.to_pos
                 self.from_pos = self.to_pos
                 self.phase = "idle"
