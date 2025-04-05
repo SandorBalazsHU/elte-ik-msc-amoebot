@@ -15,7 +15,7 @@ class Simulation:
         self.GRID_ROWS = 15
         self.GRID_COLS = 15
         self.NODE_DISTANCE = 50
-        self.RANDOM_START = True
+        self.RANDOM_START = False
         self.BOT_NUMBER = 12
         self.screan = 0
         self.clock = 0
@@ -39,6 +39,9 @@ class Simulation:
         else:
             for i in range(1,self.BOT_NUMBER + 1):
                 self.amoebots.append(Amoebot(self.triangle_map, i, 1))
+                self.amoebots[i-1].heading = -1
+            for i in range(1,self.BOT_NUMBER + 1):
+                self.amoebots.append(Amoebot(self.triangle_map, i, 2))
     
     def _draw_triangle_grid(self):
         for r, row in enumerate(self.triangle_map.triangle_grid):
@@ -125,7 +128,7 @@ class Amoebot():
         self.idle_delay = 15
         self.target = (0,0)
         self.heading = 3
-        self.RANDOM_HEADING = True
+        self.RANDOM_HEADING = False
 
     def _target_select(self):
         neighbors = self.triangle_map.get_neighbors(self.row, self.col)
@@ -144,15 +147,16 @@ class Amoebot():
 
     def update(self):
         if self.phase == "idle":
-            self.idle_timer += 1
-            if self.idle_timer >= self.idle_delay:
-                self._target_select()
-                self.from_pos = (self.row, self.col)
-                self.to_pos = self.target
-                self.triangle_map.occupy(*self.to_pos)  # előre lefoglaljuk
-                self.phase = "phase1"
-                self.progress = 0.0
-                self.idle_timer = 0
+            if self.heading != -1:
+                self.idle_timer += 1
+                if self.idle_timer >= self.idle_delay:
+                    self._target_select()
+                    self.from_pos = (self.row, self.col)
+                    self.to_pos = self.target
+                    self.triangle_map.occupy(*self.to_pos)  # előre lefoglaljuk
+                    self.phase = "phase1"
+                    self.progress = 0.0
+                    self.idle_timer = 0
 
         elif self.phase == "phase1":
             self.progress += self.speed
