@@ -69,7 +69,7 @@ class Simulation:
                     sys.exit()
 
                 if self.scene_manager.current_scene != "menu":
-                    if self.scene_manager.check_menu_click(event):
+                    if self.scene_manager.menu_button.handle_event(event):
                         self.scene_manager.set_scene("menu")
 
             self.screen.fill(self.BACKGROUND_COLOR)
@@ -84,7 +84,7 @@ class Simulation:
                 for amoebot in self.amoebots:
                     amoebot.update()
                     amoebot.draw(self.drawer)
-                self.scene_manager.draw_menu_button()
+                self.scene_manager.menu_button.draw(self.screen)
 
             pygame.display.flip()
             self.clock.tick(self.FPS)
@@ -101,6 +101,12 @@ class Scene:
         self.simulation = simulation
         self.current_scene = ""
         self.menu_object:pygame_menu.Menu = None
+        self.menu_button = MenuButton(
+            pygame.Rect(10, 10, 80, 30),
+            self.font1,
+            "Menü",
+            lambda: self.set_scene("menu")
+        )
     
     def set_scene(self, scene:str):
         self.simulation.amoebots.clear()
@@ -179,17 +185,24 @@ class Scene:
 
     def scene5(self):
         pass
+class MenuButton:
+    def __init__(self, rect: pygame.Rect, font: pygame.font.Font, label: str, callback, color=(220, 220, 220), text_color=(0, 0, 0)):
+        self.rect = rect
+        self.font = font
+        self.label = label
+        self.callback = callback
+        self.color = color
+        self.text_color = text_color
 
-    def draw_menu_button(self):
-        pygame.draw.rect(self.simulation.screen, (220, 220, 220), (10, 10, 80, 30), border_radius=5)
-        text = self.font1.render("Menu", True, self.BLACK)
-        self.simulation.screen.blit(text, (22, 15))
+    def draw(self, surface):
+        pygame.draw.rect(surface, self.color, self.rect, border_radius=5)
+        text_surf = self.font.render(self.label, True, self.text_color)
+        text_rect = text_surf.get_rect(center=self.rect.center)
+        surface.blit(text_surf, text_rect)
 
-    def check_menu_click(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if pygame.Rect(10, 10, 80, 30).collidepoint(event.pos):
-                return True
-        return False
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
+            self.callback()
 
 class TriangleMap:
     def __init__(self, row:int, col:int, node_distance: int):
