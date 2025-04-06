@@ -3,7 +3,8 @@ import pygame
 from src.config import Config
 
 class MenuButton:
-    def __init__(self, rect: pygame.Rect, font: pygame.font.Font, label: str, callback, color=(220, 220, 220), text_color=(0, 0, 0)):
+    def __init__(self, rect: pygame.Rect, font: pygame.font.Font, label: str, callback,
+                  color=Config.Scene.DEFAULT_BUTTON_COLOR, text_color=Config.Scene.DEFAULT_BUTTON_TEXT_COLOR):
         self.rect = rect
         self.font = font
         self.label = label

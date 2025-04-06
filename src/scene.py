@@ -16,19 +16,14 @@ class SceneType(Enum):
     EXIT = auto()
 class Scene:
     def __init__(self, simulation: 'Simulation'):
-        self.WHITE = (255, 255, 255)
-        self.GRAY = (30, 30, 30)
-        self.sRED = (255, 100, 100)
-        self.GREEN = (100, 255, 100)
-        self.BLACK = (0, 0, 0)
-        self.font1 = pygame.font.SysFont(None, 30)
-        self.font2 = pygame.font.SysFont(None, 15)
+        self.FONT1 = pygame.font.SysFont(None, Config.Scene.FONT1_SIZE)
+        self.FONT2 = pygame.font.SysFont(None, Config.Scene.FONT2_SIZE)
         self.simulation = simulation
         self.current_scene: SceneType = SceneType.MENU
         self.menu_object:pygame_menu.Menu = None
         self.menu_button = MenuButton(
             pygame.Rect(10, 10, 80, 30),
-            self.font1,
+            self.FONT1,
             "Menü",
             lambda: self.set_scene(SceneType.MENU)
         )

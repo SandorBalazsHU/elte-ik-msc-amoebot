@@ -1,3 +1,5 @@
+import pygame
+import pygame_menu
 class Config:
     class Window:
         WIDTH = 800
@@ -25,3 +27,14 @@ class Config:
         SPEED = 0.02
         DEFAULT_HEADING = 3
         BOT_NUMBER = 30
+    
+    class Scene:
+        WHITE = (255, 255, 255)
+        GRAY = (30, 30, 30)
+        SRED = (255, 100, 100)
+        GREEN = (100, 255, 100)
+        BLACK = (0, 0, 0)
+        FONT1_SIZE = 30
+        FONT2_SIZE = 15
+        DEFAULT_BUTTON_COLOR = (220, 220, 220)
+        DEFAULT_BUTTON_TEXT_COLOR = (0, 0, 0)

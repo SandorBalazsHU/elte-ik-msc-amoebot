@@ -22,12 +22,10 @@ class Simulation:
         pygame.init()
         self.scene_manager = Scene(self)
         self.triangle_map = TriangleMap()
-        size = self.triangle_map.get_window_size()
-        self.width = size[0]
-        self.height = size[1]
+        self.width, self.height = self.triangle_map.get_window_size()
         self.screen = pygame.display.set_mode((self.width, self.height))
-        pygame.display.set_caption("Amoebot simulator 🦠 v0.7")
-        icon = pygame.image.load("src/assets/icon.png")
+        pygame.display.set_caption(Config.Window.CAPTION)
+        icon = pygame.image.load(Config.Window.ICON_PATH)
         pygame.display.set_icon(icon)
         self.drawer = AntiAliasedDrawer(self.screen)
         self.clock = pygame.time.Clock()
