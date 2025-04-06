@@ -76,10 +76,9 @@ class Simulation:
             self.screen.fill(self.BACKGROUND_COLOR)
 
             if self.scene_manager.current_scene == SceneType.MENU:
-                if hasattr(self.scene_manager, "menu_object"):
-                    if self.scene_manager.menu_object.is_enabled():
-                        self.scene_manager.menu_object.update(events)
-                        self.scene_manager.menu_object.draw(self.screen)
+                if self.scene_manager.menu_object.is_enabled():
+                    self.scene_manager.menu_object.update(events)
+                    self.scene_manager.menu_object.draw(self.screen)
             else:
                 self.screen.blit(self.grid_surface, (0, 0))
                 for amoebot in self.amoebots:
@@ -109,7 +108,7 @@ class Scene:
         self.font1 = pygame.font.SysFont(None, 30)
         self.font2 = pygame.font.SysFont(None, 15)
         self.simulation = simulation
-        self.current_scene = ""
+        self.current_scene: SceneType = SceneType.MENU
         self.menu_object:pygame_menu.Menu = None
         self.menu_button = MenuButton(
             pygame.Rect(10, 10, 80, 30),
