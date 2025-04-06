@@ -4,6 +4,7 @@ import pygame_menu
 import sys
 import math
 import random
+from enum import Enum, auto
 class Simulation:
     def __init__(self):
         self.WIDTH, self.HEIGHT = 800, 600
@@ -38,7 +39,7 @@ class Simulation:
         pygame.display.set_icon(icon)
         self.drawer = AntiAliasedDrawer(self.screen)
         self.clock = pygame.time.Clock()
-        self.scene_manager.set_scene("menu")
+        self.scene_manager.set_scene(SceneType.MENU)
         self.grid_surface = self.create_grid_surface(
         self.triangle_map.triangle_grid,
         self.triangle_map.get_neighbors,
@@ -68,13 +69,13 @@ class Simulation:
                     pygame.quit()
                     sys.exit()
 
-                if self.scene_manager.current_scene != "menu":
+                if self.scene_manager.current_scene != SceneType.MENU:
                     if self.scene_manager.menu_button.handle_event(event):
-                        self.scene_manager.set_scene("menu")
+                        self.scene_manager.set_scene(SceneType.MENU)
 
             self.screen.fill(self.BACKGROUND_COLOR)
 
-            if self.scene_manager.current_scene == "menu":
+            if self.scene_manager.current_scene == SceneType.MENU:
                 if hasattr(self.scene_manager, "menu_object"):
                     if self.scene_manager.menu_object.is_enabled():
                         self.scene_manager.menu_object.update(events)
@@ -89,6 +90,15 @@ class Simulation:
             pygame.display.flip()
             self.clock.tick(self.FPS)
 
+class SceneType(Enum):
+    MENU = auto()
+    RANDOM = auto()
+    CONNECTED = auto()
+    WORM = auto()
+    CRAWLER = auto()
+    CUSTOM1 = auto()
+    CUSTOM2 = auto()
+    EXIT = auto()
 class Scene:
     def __init__(self, simulation:Simulation):
         self.WHITE = (255, 255, 255)
@@ -105,37 +115,25 @@ class Scene:
             pygame.Rect(10, 10, 80, 30),
             self.font1,
             "Menü",
-            lambda: self.set_scene("menu")
+            lambda: self.set_scene(SceneType.MENU)
         )
+        self.scene_map = {
+            SceneType.MENU: self.menu,
+            SceneType.RANDOM: self.scene0,
+            SceneType.CONNECTED: self.scene1,
+            SceneType.WORM: self.scene2,
+            SceneType.CRAWLER: self.scene3,
+            SceneType.CUSTOM1: self.scene4,
+            SceneType.CUSTOM2: self.scene5,
+            SceneType.EXIT: self.exit
+        }
     
-    def set_scene(self, scene:str):
+    def set_scene(self, scene_type: SceneType):
         self.simulation.amoebots.clear()
-        #if self.current_scene == "menu" and scene != "menu":
-            #self.menu_object.disable()
-        if scene == "menu":
-            self.current_scene = "menu"
-            self.menu()     
-        if scene == "scene0":
-            self.current_scene = "scene0"
-            self.scene0()
-        if scene == "scene1":
-            self.current_scene = "scene1"
-            self.scene1()
-        if scene == "scene2":
-            self.current_scene = "scene2"
-            self.scene2()
-        if scene == "scene3":
-            self.current_scene = "scene3"
-            self.scene3()
-        if scene == "scene4":
-            self.current_scene = "scene4"
-            self.scene4()
-        if scene == "scene5":
-            self.current_scene = "scene5"
-            self.scene5()
-        if scene == "exit":
-            self.current_scene = "exit"
-            self.exit()
+        self.current_scene = scene_type
+        handler = self.scene_map.get(scene_type)
+        if handler:
+            handler()
 
     def menu(self):
         self.menu_object = pygame_menu.Menu(
@@ -144,11 +142,11 @@ class Scene:
             self.simulation.HEIGHT,
             theme=pygame_menu.themes.THEME_DARK
         )
-        self.menu_object.add.button("Random", lambda: self.set_scene("scene0"))
-        self.menu_object.add.button("Connected motion", lambda: self.set_scene("scene1"))
-        self.menu_object.add.button("Worm motion", lambda: self.set_scene("scene2"))
-        self.menu_object.add.button("Crawler motion", lambda: self.set_scene("scene2"))
-        self.menu_object.add.button("Exit", lambda: self.set_scene("exit"))
+        self.menu_object.add.button("Random", lambda: self.set_scene(SceneType.RANDOM))
+        self.menu_object.add.button("Connected motion", lambda: self.set_scene(SceneType.CONNECTED))
+        self.menu_object.add.button("Worm motion", lambda: self.set_scene(SceneType.WORM))
+        self.menu_object.add.button("Crawler motion", lambda: self.set_scene(SceneType.CRAWLER))
+        self.menu_object.add.button("Exit", lambda: self.set_scene(SceneType.EXIT))
         self.menu_object.enable()
 
     def exit(self):
