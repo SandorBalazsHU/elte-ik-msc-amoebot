@@ -270,39 +270,52 @@ class Amoebot():
 
     def update(self):
         if self.phase == "idle":
-            if self.heading != -1:
-                self.idle_timer += 1
-                if self.idle_timer >= self.idle_delay:
-                    if self._target_select():
-                        self.from_pos = (self.row, self.col)
-                        self.to_pos = self.target
-                        self.triangle_map.occupy(*self.to_pos)  # előre lefoglaljuk
-                        self.triangle_map.release(*self.from_pos)
-                        self.phase = "expansion"
-                        self.progress = 0.0
-                        self.idle_timer = 0
-
+            self.update_idle()
         elif self.phase == "expansion":
-            self.progress += self.speed
-            if self.progress >= 1.0:
-                self.progress = 0.0
-                self.phase = "contraction"
-                p1 = self.triangle_map.triangle_grid[self.from_pos[0]][self.from_pos[1]]
-                p2 = self.triangle_map.triangle_grid[self.to_pos[0]][self.to_pos[1]]
-                dist = math.dist(p1, p2)
-                offset = self.CIRCLE_SIZE / dist
-                t = 1.0 * (1 + offset)
-                self.contraction_f1 = (p1[0] + (p2[0] - p1[0]) * t,
-                                  p1[1] + (p2[1] - p1[1]) * t)
-                
+            self.update_expansion()
         elif self.phase == "contraction":
-            self.progress += self.speed
-            if self.progress >= 1.0:
-                self.row, self.col = self.to_pos
-                self.from_pos = self.to_pos
-                self.phase = "idle"
-                self.progress = 0.0
-                self.idle_timer = 0
+            self.update_contraction()
+
+    def update_idle(self):
+        if self.heading != -1:
+            self.idle_timer += 1
+            if self.idle_timer >= self.idle_delay:
+                if self._target_select():
+                    self.from_pos = (self.row, self.col)
+                    self.to_pos = self.target
+                    self.triangle_map.occupy(*self.to_pos)  # előre lefoglaljuk
+                    self.triangle_map.release(*self.from_pos)
+                    self.phase = "expansion"
+                    self.progress = 0.0
+                    self.idle_timer = 0
+    
+    def update_expansion(self):
+        self.progress += self.speed
+        if self.progress >= 1.0:
+            self.progress = 0.0
+            self.phase = "contraction"
+
+            p1 = self.triangle_map.triangle_grid[self.from_pos[0]][self.from_pos[1]]
+            p2 = self.triangle_map.triangle_grid[self.to_pos[0]][self.to_pos[1]]
+
+            dist = math.dist(p1, p2)
+            offset = self.CIRCLE_SIZE / dist
+            t = 1.0 * (1 + offset)
+
+            self.contraction_f1 = (
+                p1[0] + (p2[0] - p1[0]) * t,
+                p1[1] + (p2[1] - p1[1]) * t
+            )
+
+    def update_contraction(self):
+        self.progress += self.speed
+        if self.progress >= 1.0:
+            self.row, self.col = self.to_pos
+            self.from_pos = self.to_pos
+            self.phase = "idle"
+            self.progress = 0.0
+            self.idle_timer = 0
+
 
     def draw(self, drawer):
         p1 = self.triangle_map.triangle_grid[self.from_pos[0]][self.from_pos[1]]
