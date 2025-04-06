@@ -32,6 +32,9 @@ class Simulation:
         self.WIDTH = size[0]
         self.HEIGHT = size[1]
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
+        pygame.display.set_caption("Amoebot simulator 🦠 v0.7")
+        icon = pygame.image.load("icon.png")
+        pygame.display.set_icon(icon)
         self.drawer = AntiAliasedDrawer(self.screen)
         self.clock = pygame.time.Clock()
         if self.RANDOM_START:
