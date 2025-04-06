@@ -1,0 +1,26 @@
+class Config:
+    class Window:
+        WIDTH = 800
+        HEIGHT = 600
+        FPS = 30
+        CAPTION = "Amoebot simulator 🦠 v0.7"
+        ICON_PATH = "src/assets/icon.png"
+        BACKGROUND_COLOR = (30, 30, 30)
+
+    class Grid:
+        ROWS = 15
+        COLS = 15
+        NODE_DISTANCE = 50
+        PADDING = 50
+        NODE_COLOR = (180, 180, 180)
+        GRID_COLOR = (80, 80, 80)
+        NODE_RADIUS = 5
+        EDGE_WIDTH = 1
+
+    class Amoebot:
+        CIRCLE_SIZE = 10
+        EYE_COLOR = (255, 255, 255)
+        EYE_SIZE = 2
+        IDLE_DELAY = 15
+        SPEED = 0.02
+        DEFAULT_HEADING = 3
