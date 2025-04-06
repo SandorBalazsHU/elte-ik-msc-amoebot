@@ -39,7 +39,6 @@ class Simulation:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-
                 if self.scene_manager.current_scene != SceneType.MENU:
                     if self.scene_manager.menu_button.handle_event(event):
                         self.scene_manager.set_scene(SceneType.MENU)
