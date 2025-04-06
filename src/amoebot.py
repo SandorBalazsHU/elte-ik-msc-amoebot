@@ -2,9 +2,6 @@ import random
 import math
 
 from src.config import Config
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from src.triangle_map import TriangleMap
 
 class Amoebot():
     def __init__(self, triangle_map: 'TriangleMap',  row: int, col:int):

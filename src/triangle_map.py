@@ -2,6 +2,7 @@ import pygame
 import math
 
 from src.config import Config
+from src.drawer import AntiAliasedDrawer
 
 class TriangleMap:
     def __init__(self, row:int, col:int, node_distance: int):
@@ -40,12 +41,13 @@ class TriangleMap:
 
     def create_grid_surface(self, triangle_grid, get_neighbors, node_color, grid_color, node_radius, edge_width, width, height):
         surface = pygame.Surface((width, height), pygame.SRCALPHA)
+        drawer = AntiAliasedDrawer(surface)
         for r, row in enumerate(triangle_grid):
             for c, point in enumerate(row):
-                pygame.draw.circle(surface, node_color, point, node_radius)
+                drawer.draw_circle(node_color, point, node_radius)
                 for nr, nc in get_neighbors(r, c):
                     neighbor = triangle_grid[nr][nc]
-                    pygame.draw.line(surface, grid_color, point, neighbor, edge_width)
+                    drawer.draw_line(grid_color, point, neighbor, edge_width)
         return surface
 
     def get_neighbors(self, row, col):

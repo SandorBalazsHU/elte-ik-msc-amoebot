@@ -7,10 +7,6 @@ from src.config import Config
 from src.menu_button import MenuButton
 from src.amoebot import Amoebot
 
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from src.simulation import Simulation
-
 class SceneType(Enum):
     MENU = auto()
     RANDOM = auto()
