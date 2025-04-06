@@ -69,13 +69,13 @@ class Scene:
         for i in range(1, BOT_NUMBER + 1):
             bot = Amoebot(self.simulation.triangle_map, i, 1)
             self.simulation.amoebots.append(bot)
-            bot.RANDOM_HEADING = True
-        for i in range(1, BOT_NUMBER + 1):
-            bot = Amoebot(self.simulation.triangle_map, i, 1)
-            self.simulation.amoebots.append(bot)
             bot.RANDOM_HEADING = False
         for i in range(1, BOT_NUMBER + 1):
             bot = Amoebot(self.simulation.triangle_map, i, 2)
+            self.simulation.amoebots.append(bot)
+            bot.RANDOM_HEADING = False
+        for i in range(1, BOT_NUMBER + 1):
+            bot = Amoebot(self.simulation.triangle_map, i, 3)
             self.simulation.amoebots.append(bot)
             bot.RANDOM_HEADING = False
 
