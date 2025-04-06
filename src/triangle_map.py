@@ -5,13 +5,9 @@ from src.config import Config
 from src.drawer import AntiAliasedDrawer
 
 class TriangleMap:
-    def __init__(self, row:int, col:int, node_distance: int):
-        self.PADDING = 50
-        self.row = row
-        self.col = col
-        self.node_distance = node_distance
+    def __init__(self):
         self.triangle_grid = []
-        self.occupied = [[False for _ in range(col)] for _ in range(row)]
+        self.occupied = [[False for _ in range(Config.Grid.COLS)] for _ in range(Config.Grid.ROWS)]
         self.__generate_triangle_grid()
 
     def is_occupied(self, row, col):
@@ -25,29 +21,29 @@ class TriangleMap:
 
     def get_window_size(self):
         size = (0,0)
-        size_x = (self.PADDING*2) + (self.row*self.node_distance) - (self.node_distance/2)
-        size_y = (self.PADDING) + (self.col*self.node_distance) - (self.node_distance*2)
+        size_x = (Config.Grid.PADDING*2) + (Config.Grid.ROWS*Config.Grid.NODE_DISTANCE) - (Config.Grid.NODE_DISTANCE/2)
+        size_y = (Config.Grid.PADDING) + (Config.Grid.COLS*Config.Grid.NODE_DISTANCE) - (Config.Grid.NODE_DISTANCE*2)
         size = (size_x,size_y)
         return size
 
     def __generate_triangle_grid(self):
-        for row in range(self.row):
+        for row in range(Config.Grid.ROWS):
             row_points = []
-            for col in range(self.col):
-                x = col * self.node_distance + (self.node_distance // 2 if row % 2 else 0)
-                y = row * self.node_distance * math.sin(math.radians(60))
-                row_points.append((x + self.PADDING, int(y) + self.PADDING))
+            for col in range(Config.Grid.COLS):
+                x = col * Config.Grid.NODE_DISTANCE + (Config.Grid.NODE_DISTANCE // 2 if row % 2 else 0)
+                y = row * Config.Grid.NODE_DISTANCE * math.sin(math.radians(60))
+                row_points.append((x + Config.Grid.PADDING, int(y) + Config.Grid.PADDING))
             self.triangle_grid.append(row_points)
 
-    def create_grid_surface(self, triangle_grid, get_neighbors, node_color, grid_color, node_radius, edge_width, width, height):
+    def create_grid_surface(self, width, height):
         surface = pygame.Surface((width, height), pygame.SRCALPHA)
         drawer = AntiAliasedDrawer(surface)
-        for r, row in enumerate(triangle_grid):
+        for r, row in enumerate(self.triangle_grid):
             for c, point in enumerate(row):
-                drawer.draw_circle(node_color, point, node_radius)
-                for nr, nc in get_neighbors(r, c):
-                    neighbor = triangle_grid[nr][nc]
-                    drawer.draw_line(grid_color, point, neighbor, edge_width)
+                drawer.draw_circle(Config.Grid.NODE_COLOR, point, Config.Grid.NODE_RADIUS)
+                for nr, nc in self.get_neighbors(r, c):
+                    neighbor = self.triangle_grid[nr][nc]
+                    drawer.draw_line(Config.Grid.GRID_COLOR, point, neighbor, Config.Grid.EDGE_WIDTH)
         return surface
 
     def get_neighbors(self, row, col):
@@ -57,6 +53,6 @@ class TriangleMap:
         directions = directions_odd if row % 2 else directions_even
         for dr, dc in directions:
             nr, nc = row + dr, col + dc
-            if 0 <= nr < self.row and 0 <= nc < self.col:
+            if 0 <= nr < Config.Grid.ROWS and 0 <= nc < Config.Grid.COLS:
                 triangle_neighbors.append((nr, nc))
         return triangle_neighbors

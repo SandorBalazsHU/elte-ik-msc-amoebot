@@ -8,18 +8,9 @@ from src.drawer import AntiAliasedDrawer
 
 class Simulation:
     def __init__(self):
-        self.width, self.height = 800, 600
-        self.BACKGROUND_COLOR = (30, 30, 30)
-        self.GRID_COLOR = (80, 80, 80)
-        self.NODE_COLOR = (180, 180, 180)
-        self.NODE_RADIUS = 5
-        self.EDGE_WIDTH = 1
-        self.FPS = 30
-        self.GRID_ROWS = 15
-        self.GRID_COLS = 15
-        self.NODE_DISTANCE = 50
-        self.screen = 0
-        self.clock = 0
+        self.width, self.height = Config.Window.WIDTH, Config.Window.HEIGHT
+        self.screen = None
+        self.clock = None
         self.triangle_map = []
         self.amoebots = []
         self.drawer: AntiAliasedDrawer = None
@@ -30,7 +21,7 @@ class Simulation:
     def init(self):
         pygame.init()
         self.scene_manager = Scene(self)
-        self.triangle_map = TriangleMap(self.GRID_ROWS, self.GRID_COLS, self.NODE_DISTANCE)
+        self.triangle_map = TriangleMap()
         size = self.triangle_map.get_window_size()
         self.width = size[0]
         self.height = size[1]
@@ -41,16 +32,7 @@ class Simulation:
         self.drawer = AntiAliasedDrawer(self.screen)
         self.clock = pygame.time.Clock()
         self.scene_manager.set_scene(SceneType.MENU)
-        self.grid_surface = self.triangle_map.create_grid_surface(
-        self.triangle_map.triangle_grid,
-        self.triangle_map.get_neighbors,
-        self.NODE_COLOR,
-        self.GRID_COLOR,
-        self.NODE_RADIUS,
-        self.EDGE_WIDTH,
-        self.width,
-        self.height
-        )
+        self.grid_surface = self.triangle_map.create_grid_surface(self.width,self.height)
 
     def start(self):
         while True:
@@ -64,7 +46,7 @@ class Simulation:
                     if self.scene_manager.menu_button.handle_event(event):
                         self.scene_manager.set_scene(SceneType.MENU)
 
-            self.screen.fill(self.BACKGROUND_COLOR)
+            self.screen.fill(Config.Window.BACKGROUND_COLOR)
 
             if self.scene_manager.current_scene == SceneType.MENU:
                 if self.scene_manager.menu_object.is_enabled():
@@ -78,4 +60,4 @@ class Simulation:
                 self.scene_manager.menu_button.draw(self.screen)
 
             pygame.display.flip()
-            self.clock.tick(self.FPS)
+            self.clock.tick(Config.Window.FPS)

@@ -66,9 +66,8 @@ class Scene:
         pygame.event.post(pygame.event.Event(pygame.QUIT))
 
     def setup_random_scene(self):
-        BOT_NUMBER = 30
-        self.simulation.amoebots = [Amoebot(self.simulation.triangle_map, random.randint(0, self.simulation.GRID_ROWS - 1),
-                                      random.randint(0, self.simulation.GRID_COLS - 1)) for _ in range(BOT_NUMBER)]
+        self.simulation.amoebots = [Amoebot(self.simulation.triangle_map, random.randint(0, Config.Grid.ROWS - 1),
+                                      random.randint(0, Config.Grid.COLS - 1)) for _ in range(Config.Amoebot.BOT_NUMBER)]
 
     def setup_connected_motion_scene(self):
         BOT_NUMBER = 12

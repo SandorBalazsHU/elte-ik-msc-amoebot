@@ -24,3 +24,4 @@ class Config:
         IDLE_DELAY = 15
         SPEED = 0.02
         DEFAULT_HEADING = 3
+        BOT_NUMBER = 30
