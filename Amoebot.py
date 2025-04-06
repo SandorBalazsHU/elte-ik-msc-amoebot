@@ -40,7 +40,7 @@ class Simulation:
         self.drawer = AntiAliasedDrawer(self.screen)
         self.clock = pygame.time.Clock()
         self.scene_manager.set_scene(SceneType.MENU)
-        self.grid_surface = self.create_grid_surface(
+        self.grid_surface = self.triangle_map.create_grid_surface(
         self.triangle_map.triangle_grid,
         self.triangle_map.get_neighbors,
         self.NODE_COLOR,
@@ -50,16 +50,6 @@ class Simulation:
         self.WIDTH,
         self.HEIGHT
         )
-    
-    def create_grid_surface(self, triangle_grid, get_neighbors, node_color, grid_color, node_radius, edge_width, width, height):
-        surface = pygame.Surface((width, height), pygame.SRCALPHA)
-        for r, row in enumerate(triangle_grid):
-            for c, point in enumerate(row):
-                pygame.draw.circle(surface, node_color, point, node_radius)
-                for nr, nc in get_neighbors(r, c):
-                    neighbor = triangle_grid[nr][nc]
-                    pygame.draw.line(surface, grid_color, point, neighbor, edge_width)
-        return surface
 
     def start(self):
         while True:
@@ -95,8 +85,6 @@ class SceneType(Enum):
     CONNECTED = auto()
     WORM = auto()
     CRAWLER = auto()
-    CUSTOM1 = auto()
-    CUSTOM2 = auto()
     EXIT = auto()
 class Scene:
     def __init__(self, simulation:Simulation):
@@ -118,12 +106,10 @@ class Scene:
         )
         self.scene_map = {
             SceneType.MENU: self.menu,
-            SceneType.RANDOM: self.scene0,
-            SceneType.CONNECTED: self.scene1,
-            SceneType.WORM: self.scene2,
-            SceneType.CRAWLER: self.scene3,
-            SceneType.CUSTOM1: self.scene4,
-            SceneType.CUSTOM2: self.scene5,
+            SceneType.RANDOM: self.setup_random_scene,
+            SceneType.CONNECTED: self.setup_connected_motion_scene,
+            SceneType.WORM: self.setup_worm_motion_scene,
+            SceneType.CRAWLER: self.setup_crawler_motion_scene,
             SceneType.EXIT: self.exit
         }
     
@@ -151,12 +137,12 @@ class Scene:
     def exit(self):
         pygame.event.post(pygame.event.Event(pygame.QUIT))
 
-    def scene0(self):
+    def setup_random_scene(self):
         BOT_NUMBER = 30
         self.simulation.amoebots = [Amoebot(self.simulation.triangle_map, random.randint(0, self.simulation.GRID_ROWS - 1),
                                       random.randint(0, self.simulation.GRID_COLS - 1)) for _ in range(BOT_NUMBER)]
 
-    def scene1(self):
+    def setup_connected_motion_scene(self):
         BOT_NUMBER = 12
         for i in range(1, BOT_NUMBER + 1):
             bot = Amoebot(self.simulation.triangle_map, i, 1)
@@ -171,16 +157,10 @@ class Scene:
             self.simulation.amoebots.append(bot)
             bot.RANDOM_HEADING = False
 
-    def scene2(self):
+    def setup_worm_motion_scene(self):
         pass
 
-    def scene3(self):
-        pass
-
-    def scene4(self):
-        pass
-
-    def scene5(self):
+    def setup_crawler_motion_scene(self):
         pass
 class MenuButton:
     def __init__(self, rect: pygame.Rect, font: pygame.font.Font, label: str, callback, color=(220, 220, 220), text_color=(0, 0, 0)):
@@ -236,6 +216,16 @@ class TriangleMap:
                 row_points.append((x + self.PADDING, int(y) + self.PADDING))
             self.triangle_grid.append(row_points)
 
+    def create_grid_surface(self, triangle_grid, get_neighbors, node_color, grid_color, node_radius, edge_width, width, height):
+        surface = pygame.Surface((width, height), pygame.SRCALPHA)
+        for r, row in enumerate(triangle_grid):
+            for c, point in enumerate(row):
+                pygame.draw.circle(surface, node_color, point, node_radius)
+                for nr, nc in get_neighbors(r, c):
+                    neighbor = triangle_grid[nr][nc]
+                    pygame.draw.line(surface, grid_color, point, neighbor, edge_width)
+        return surface
+
     def get_neighbors(self, row, col):
         triangle_neighbors = []
         directions_even = [(-1, -1), (-1, 0), (0, -1), (0, 1), (1, -1), (1, 0)]
@@ -288,24 +278,24 @@ class Amoebot():
                         self.to_pos = self.target
                         self.triangle_map.occupy(*self.to_pos)  # előre lefoglaljuk
                         self.triangle_map.release(*self.from_pos)
-                        self.phase = "phase1"
+                        self.phase = "expansion"
                         self.progress = 0.0
                         self.idle_timer = 0
 
-        elif self.phase == "phase1":
+        elif self.phase == "expansion":
             self.progress += self.speed
             if self.progress >= 1.0:
                 self.progress = 0.0
-                self.phase = "phase2"
+                self.phase = "contraction"
                 p1 = self.triangle_map.triangle_grid[self.from_pos[0]][self.from_pos[1]]
                 p2 = self.triangle_map.triangle_grid[self.to_pos[0]][self.to_pos[1]]
                 dist = math.dist(p1, p2)
                 offset = self.CIRCLE_SIZE / dist
                 t = 1.0 * (1 + offset)
-                self.phase2_f1 = (p1[0] + (p2[0] - p1[0]) * t,
+                self.contraction_f1 = (p1[0] + (p2[0] - p1[0]) * t,
                                   p1[1] + (p2[1] - p1[1]) * t)
                 
-        elif self.phase == "phase2":
+        elif self.phase == "contraction":
             self.progress += self.speed
             if self.progress >= 1.0:
                 self.row, self.col = self.to_pos
@@ -317,39 +307,59 @@ class Amoebot():
     def draw(self, drawer):
         p1 = self.triangle_map.triangle_grid[self.from_pos[0]][self.from_pos[1]]
         p2 = self.triangle_map.triangle_grid[self.to_pos[0]][self.to_pos[1]]
+
         if self.phase == "idle":
-            drawer.draw_circle(self.color, p2, self.CIRCLE_SIZE)
-            if self.EYE_ON:
-                drawer.draw_circle(self.EYE_COLOR, p2, self.EYE_SIZE)
+            self.draw_idle(p2, drawer)
+        elif self.phase == "expansion":
+            self.draw_expansion(p1, p2, drawer)
+        elif self.phase == "contraction":
+            self.draw_contraction(p1, p2, drawer)
         else:
-            dist = math.dist(p1, p2)
-            offset = self.CIRCLE_SIZE / dist
-            if self.phase == "phase1":
-                dx = p2[0] - p1[0]
-                dy = p2[1] - p1[1]
-                dist = math.hypot(dx, dy)
-                offset = self.CIRCLE_SIZE / dist
-                f1_start = (p1[0] + dx * offset,
-                            p1[1] + dy * offset)
-                f1_end = (p1[0] + dx * (1 + offset),
-                          p1[1] + dy * (1 + offset))
-                f1 = (f1_start[0] + (f1_end[0] - f1_start[0]) * self.progress,
-                      f1_start[1] + (f1_end[1] - f1_start[1]) * self.progress)
-                f2 = (p1[0] - dx * offset, 
-                      p1[1] - dy * offset)
-                self.phase2_f1 = f1_end
-            elif self.phase == "phase2":
-                f1 = self.phase2_f1
-                t = self.progress * (1 - offset)
-                f2 = (p1[0] + (p2[0] - p1[0]) * t,
-                    p1[1] + (p2[1] - p1[1]) * t)
-            else:
-                f1 = f2 = p1
-            drawer.draw_ellipse(f1, f2, self.color)
-            if self.EYE_ON:
-                eye_x = f1[0] + (f2[0] - f1[0]) * 0.1
-                eye_y = f1[1] + (f2[1] - f1[1]) * 0.1
-                drawer.draw_circle((255, 255, 255), (eye_x, eye_y), 2)
+            drawer.draw_circle(self.color, p1, self.CIRCLE_SIZE)
+
+    def draw_idle(self, pos, drawer):
+        drawer.draw_circle(self.color, pos, self.CIRCLE_SIZE)
+        if self.EYE_ON:
+            self.draw_eye(pos, pos, drawer)
+
+    def draw_expansion(self, p1, p2, drawer):
+        dx = p2[0] - p1[0]
+        dy = p2[1] - p1[1]
+        dist = math.hypot(dx, dy)
+        offset = self.CIRCLE_SIZE / dist
+
+        f1_start = (p1[0] + dx * offset, p1[1] + dy * offset)
+        f1_end = (p1[0] + dx * (1 + offset), p1[1] + dy * (1 + offset))
+        f1 = (
+            f1_start[0] + (f1_end[0] - f1_start[0]) * self.progress,
+            f1_start[1] + (f1_end[1] - f1_start[1]) * self.progress
+        )
+        f2 = (p1[0] - dx * offset, p1[1] - dy * offset)
+        self.contraction_f1 = f1_end
+
+        drawer.draw_ellipse(f1, f2, self.color)
+        if self.EYE_ON:
+            self.draw_eye(f1, f2, drawer)
+
+    def draw_contraction(self, p1, p2, drawer):
+        dist = math.dist(p1, p2)
+        offset = self.CIRCLE_SIZE / dist
+        f1 = self.contraction_f1
+        t = self.progress * (1 - offset)
+        f2 = (
+            p1[0] + (p2[0] - p1[0]) * t,
+            p1[1] + (p2[1] - p1[1]) * t
+        )
+
+        drawer.draw_ellipse(f1, f2, self.color)
+        if self.EYE_ON:
+            self.draw_eye(f1, f2, drawer)
+
+    def draw_eye(self, f1, f2, drawer):
+        eye_x = f1[0] + (f2[0] - f1[0]) * 0.1
+        eye_y = f1[1] + (f2[1] - f1[1]) * 0.1
+        drawer.draw_circle(self.EYE_COLOR, (eye_x, eye_y), self.EYE_SIZE)
+
 class AntiAliasedDrawer:
     def __init__(self, surface):
         self.surface = surface
