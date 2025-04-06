@@ -1,5 +1,6 @@
 import pygame
 import pygame.gfxdraw
+import pygame_menu
 import sys
 import math
 import random
@@ -15,7 +16,6 @@ class Simulation:
         self.GRID_ROWS = 15
         self.GRID_COLS = 15
         self.NODE_DISTANCE = 50
-        self.RANDOM_START = True
         self.screan = 0
         self.clock = 0
         self.triangle_map = []
@@ -37,10 +37,7 @@ class Simulation:
         pygame.display.set_icon(icon)
         self.drawer = AntiAliasedDrawer(self.screen)
         self.clock = pygame.time.Clock()
-        if self.RANDOM_START:
-            self.scene.set_scene("scene0")
-        else:
-            self.scene.set_scene("scene1")
+        self.scene.set_scene("menu")
     
     def _draw_triangle_grid(self):
         for r, row in enumerate(self.triangle_map.triangle_grid):
@@ -52,43 +49,91 @@ class Simulation:
 
     def start(self):
         while True:
-            for event in pygame.event.get():
+            events = pygame.event.get()
+            for event in events:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+
+                # 👉 Ha nem menüben vagyunk, ellenőrizd a Menü gombra kattintást
+                if self.scene.current_scene != "menu":
+                    if self.scene.check_menu_click(event):
+                        self.scene.set_scene("menu")
+
             self.screen.fill(self.BACKGROUND_COLOR)
-            self._draw_triangle_grid()
-            for amoebot in self.amoebots:
-                amoebot.update()
-                amoebot.draw(self.drawer)
+
+            if self.scene.current_scene == "menu":
+                if hasattr(self.scene, "menu_object"):
+                    if self.scene.menu_object.is_enabled():
+                        self.scene.menu_object.update(events)
+                        self.scene.menu_object.draw(self.screen)
+            else:
+                self._draw_triangle_grid()
+                for amoebot in self.amoebots:
+                    amoebot.update()
+                    amoebot.draw(self.drawer)
+                self.scene.draw_menu_button()
+
             pygame.display.flip()
             self.clock.tick(self.FPS)
 
 class Scene:
     def __init__(self, simulation:Simulation):
+        self.WHITE = (255, 255, 255)
+        self.GRAY = (30, 30, 30)
+        self.sRED = (255, 100, 100)
+        self.GREEN = (100, 255, 100)
+        self.BLACK = (0, 0, 0)
+        self.font1 = pygame.font.SysFont(None, 30)
+        self.font2 = pygame.font.SysFont(None, 15)
         self.simulation = simulation
         self.current_scene = ""
+        self.menu_object = ""
     
     def set_scene(self, scene:str):
         self.simulation.amoebots.clear()
+        #if self.current_scene == "menu" and scene != "menu":
+            #self.menu_object.disable()
+        if scene == "menu":
+            self.current_scene = "menu"
+            self.menu()     
         if scene == "scene0":
-            self.scene = "scene0"
+            self.current_scene = "scene0"
             self.scene0()
         if scene == "scene1":
-            self.scene = "scene1"
+            self.current_scene = "scene1"
             self.scene1()
         if scene == "scene2":
-            self.scene = "scene2"
+            self.current_scene = "scene2"
             self.scene2()
         if scene == "scene3":
-            self.scene = "scene3"
+            self.current_scene = "scene3"
             self.scene3()
         if scene == "scene4":
-            self.scene = "scene4"
+            self.current_scene = "scene4"
             self.scene4()
         if scene == "scene5":
-            self.scene = "scene5"
+            self.current_scene = "scene5"
             self.scene5()
+        if scene == "exit":
+            self.current_scene = "exit"
+            self.exit()
+
+    def menu(self):
+        self.menu_object = pygame_menu.Menu(
+        'Főmenü',
+            self.simulation.WIDTH,
+            self.simulation.HEIGHT,
+            theme=pygame_menu.themes.THEME_DARK
+        )
+        self.menu_object.add.button("Random", lambda: self.set_scene("scene0"))
+        self.menu_object.add.button("Connected motion", lambda: self.set_scene("scene1"))
+        self.menu_object.add.button("Worm motion", lambda: self.set_scene("scene2"))
+        self.menu_object.add.button("Exit", lambda: self.set_scene("exit"))
+        self.menu_object.enable()
+
+    def exit(self):
+        pygame.event.post(pygame.event.Event(pygame.QUIT))
 
     def scene0(self):
         BOT_NUMBER = 30
@@ -121,6 +166,17 @@ class Scene:
 
     def scene5(self):
         pass
+
+    def draw_menu_button(self):
+        pygame.draw.rect(self.simulation.screen, (220, 220, 220), (10, 10, 80, 30), border_radius=5)
+        text = self.font1.render("Menü", True, self.BLACK)
+        self.simulation.screen.blit(text, (22, 15))
+
+    def check_menu_click(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if pygame.Rect(10, 10, 80, 30).collidepoint(event.pos):
+                return True
+        return False
 
 class TriangleMap:
     def __init__(self, row:int, col:int, node_distance: int):
