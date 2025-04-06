@@ -20,8 +20,9 @@ class Simulation:
         self.clock = 0
         self.triangle_map = []
         self.amoebots = []
-        self.drawer: AntiAliasedDrawer
-        self.scene_manager: Scene
+        self.drawer: AntiAliasedDrawer = None
+        self.scene_manager: Scene = None
+        self.grid_surface = None
         self.init()
 
     def init(self):
@@ -38,14 +39,26 @@ class Simulation:
         self.drawer = AntiAliasedDrawer(self.screen)
         self.clock = pygame.time.Clock()
         self.scene_manager.set_scene("menu")
+        self.grid_surface = self.create_grid_surface(
+        self.triangle_map.triangle_grid,
+        self.triangle_map.get_neighbors,
+        self.NODE_COLOR,
+        self.GRID_COLOR,
+        self.NODE_RADIUS,
+        self.EDGE_WIDTH,
+        self.WIDTH,
+        self.HEIGHT
+        )
     
-    def _draw_triangle_grid(self):
-        for r, row in enumerate(self.triangle_map.triangle_grid):
+    def create_grid_surface(self, triangle_grid, get_neighbors, node_color, grid_color, node_radius, edge_width, width, height):
+        surface = pygame.Surface((width, height), pygame.SRCALPHA)
+        for r, row in enumerate(triangle_grid):
             for c, point in enumerate(row):
-                self.drawer.draw_circle(self.NODE_COLOR, point, self.NODE_RADIUS)
-                for nr, nc in self.triangle_map.get_neighbors(r, c):
-                    neighbor = self.triangle_map.triangle_grid[nr][nc]
-                    self.drawer.draw_line(self.GRID_COLOR, point, neighbor, self.EDGE_WIDTH)
+                pygame.draw.circle(surface, node_color, point, node_radius)
+                for nr, nc in get_neighbors(r, c):
+                    neighbor = triangle_grid[nr][nc]
+                    pygame.draw.line(surface, grid_color, point, neighbor, edge_width)
+        return surface
 
     def start(self):
         while True:
@@ -67,7 +80,7 @@ class Simulation:
                         self.scene_manager.menu_object.update(events)
                         self.scene_manager.menu_object.draw(self.screen)
             else:
-                self._draw_triangle_grid()
+                self.screen.blit(self.grid_surface, (0, 0))
                 for amoebot in self.amoebots:
                     amoebot.update()
                     amoebot.draw(self.drawer)
@@ -87,7 +100,7 @@ class Scene:
         self.font2 = pygame.font.SysFont(None, 15)
         self.simulation = simulation
         self.current_scene = ""
-        self.menu_object = ""
+        self.menu_object:pygame_menu.Menu = None
     
     def set_scene(self, scene:str):
         self.simulation.amoebots.clear()
@@ -198,10 +211,10 @@ class TriangleMap:
         self.occupied[row][col] = False
 
     def get_window_size(self):
-        size = [0,0]
+        size = (0,0)
         size_x = (self.PADDING*2) + (self.row*self.node_distance) - (self.node_distance/2)
         size_y = (self.PADDING) + (self.col*self.node_distance) - (self.node_distance*2)
-        size = [size_x,size_y]
+        size = (size_x,size_y)
         return size
 
     def __generate_triangle_grid(self):
