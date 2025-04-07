@@ -2,33 +2,59 @@ import random
 import math
 
 from src.config import Config
+from src.behaviors import BehaviorType
 
 class Amoebot():
     def __init__(self, triangle_map: 'TriangleMap',  row: int, col:int):
+        self.EYE_ON = True
+        self.behavior = BehaviorType.RANDOM
+        self.intelligent_behavior = None 
+        self.heading = 0
+        self.target = (0,0)
         self.triangle_map = triangle_map
         self.row = row
         self.col = col
         self.from_pos = (self.row, self.col)
         self.to_pos = (self.row, self.col)
         self.color = [random.randint(50, 255) for _ in range(3)]
-        self.EYE_ON = True
         self.phase = "idle"
         self.progress = 0.0
         self.idle_timer = 0
-        self.target = (0,0)
-        self.heading = 3
-        self.RANDOM_HEADING = True
+
+    def set_behavior(self, behavior: BehaviorType):
+        self.behavior = behavior
+
+    def set_intelligent_behavior(self, behavior_fn: callable):
+        self.behavior = BehaviorType.INTELLIGENT
+        self.intelligent_behavior = behavior_fn
 
     def _target_select(self):
         neighbors = self.triangle_map.get_neighbors(self.row, self.col)
         free_neighbors = [n for n in neighbors if not self.triangle_map.is_occupied(*n)]
         if not free_neighbors:
-            return False  # nincs hova menni
-        if self.RANDOM_HEADING:
+            return False
+
+        if self.behavior == BehaviorType.STAY:
+            return False  # nem mozdul
+
+        elif self.behavior == BehaviorType.RANDOM:
             self.target = random.choice(free_neighbors)
-        else:
+
+        elif self.behavior == BehaviorType.TO_HEADING:
+            if self.heading == -1 or self.heading >= len(neighbors):
+                return False
             self.target = neighbors[self.heading]
+
+        elif self.behavior == BehaviorType.INTELLIGENT:
+            if self.intelligent_behavior:
+                self.intelligent_behavior(self)
+            else:
+                return False  # nincs intelligens logika
         return True
+
+
+    def stop(self):
+        self.set_behavior(BehaviorType.STAY)
 
     def update(self):
         if self.phase == "idle":
@@ -44,9 +70,9 @@ class Amoebot():
             if self.idle_timer >= Config.Amoebot.IDLE_DELAY:
                 if self._target_select():
                     self.from_pos = (self.row, self.col)
-                    self.to_pos = self.target
-                    self.triangle_map.occupy(*self.to_pos)  # előre lefoglaljuk
                     self.triangle_map.release(*self.from_pos)
+                    self.to_pos = self.target
+                    self.triangle_map.occupy(*self.to_pos) 
                     self.phase = "expansion"
                     self.progress = 0.0
                     self.idle_timer = 0
