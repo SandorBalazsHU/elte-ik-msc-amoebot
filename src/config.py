@@ -26,7 +26,6 @@ class Config:
         IDLE_DELAY = 15
         SPEED = 0.02
         DEFAULT_HEADING = 3
-        BOT_NUMBER = 30
     
     class Scene:
         WHITE = (255, 255, 255)
@@ -38,3 +37,4 @@ class Config:
         FONT2_SIZE = 15
         DEFAULT_BUTTON_COLOR = (220, 220, 220)
         DEFAULT_BUTTON_TEXT_COLOR = (0, 0, 0)
+        BOT_NUMBER = 30

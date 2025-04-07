@@ -52,6 +52,8 @@ class Amoebot():
                 return False  # nincs intelligens logika
         return True
 
+    def set_heading(self, heading:int):
+        self.heading = heading
 
     def stop(self):
         self.set_behavior(BehaviorType.STAY)

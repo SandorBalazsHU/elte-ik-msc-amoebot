@@ -6,6 +6,7 @@ from enum import Enum, auto
 from src.config import Config
 from src.menu_button import MenuButton
 from src.amoebot import Amoebot
+from src.behaviors import BehaviorType
 
 class SceneType(Enum):
     MENU = auto()
@@ -62,22 +63,27 @@ class Scene:
 
     def setup_random_scene(self):
         self.simulation.amoebots = [Amoebot(self.simulation.triangle_map, random.randint(0, Config.Grid.ROWS - 1),
-                                      random.randint(0, Config.Grid.COLS - 1)) for _ in range(Config.Amoebot.BOT_NUMBER)]
+                                      random.randint(0, Config.Grid.COLS - 1)) for _ in range(Config.Scene.BOT_NUMBER)]
 
     def setup_connected_motion_scene(self):
         BOT_NUMBER = 12
         for i in range(1, BOT_NUMBER + 1):
-            bot = Amoebot(self.simulation.triangle_map, i, 1)
+            bot = Amoebot(self.simulation.triangle_map, i, 3)
+            bot.set_behavior(BehaviorType.TO_HEADING)
+            bot.set_heading(3)
             self.simulation.amoebots.append(bot)
-            bot.RANDOM_HEADING = False
+            
         for i in range(1, BOT_NUMBER + 1):
             bot = Amoebot(self.simulation.triangle_map, i, 2)
+            bot.set_behavior(BehaviorType.TO_HEADING)
+            bot.set_heading(3)
             self.simulation.amoebots.append(bot)
-            bot.RANDOM_HEADING = False
+
         for i in range(1, BOT_NUMBER + 1):
-            bot = Amoebot(self.simulation.triangle_map, i, 3)
+            bot = Amoebot(self.simulation.triangle_map, i, 1)
+            bot.set_behavior(BehaviorType.TO_HEADING)
+            bot.set_heading(3)
             self.simulation.amoebots.append(bot)
-            bot.RANDOM_HEADING = False
 
     def setup_worm_motion_scene(self):
         pass
