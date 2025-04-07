@@ -35,7 +35,10 @@ class Amoebot():
             self.set_behavior(BehaviorType.STAY)
 
         elif new_state == AmoebotState.PASSIVE:
-            self.set_behavior(BehaviorType.STAY) 
+            self.set_behavior(BehaviorType.STAY)
+
+        elif new_state == AmoebotState.ONE_STEP:
+            self.set_behavior(BehaviorType.TO_HEADING) 
 
         elif new_state == AmoebotState.ACTIVE:
             self.set_behavior(BehaviorType.RANDOM)
@@ -48,54 +51,20 @@ class Amoebot():
         if bot is self:
             return
         self.connected_bots.add(bot)
-        bot.connected_bots.add(self)
+        #bot.connected_bots.add(self)
 
-    def move(self, row: int, col: int, visited=None):
-        if visited is None:
-            visited = set()
+    def move(self, heading: int):
+        #print("updated")
+        self.heading = heading
+        self.set_state(AmoebotState.ONE_STEP)
+        #self.set_state(AmoebotState.ACTIVE)
+        #self.set_behavior(BehaviorType.TO_HEADING)
+        #self.update_connected()
 
-        if self in visited:
-            return
-
-        visited.add(self)
-
-        if not self.triangle_map.is_valid(row, col):
-            return
-        if self.triangle_map.is_occupied(row, col):
-            return
-
-        self.to_pos = (row, col)  # NEM állítjuk át a fázist!
-        self.target = self.to_pos
-
-        for connected_bot in self.connected_bots:
-            connected_bot._respond_to_connection(self, visited)
-
-    def pull(self, bot: 'Amoebot', visited=None):
-        dr = self.row - bot.row
-        dc = self.col - bot.col
-        new_row = self.row + dr
-        new_col = self.col + dc
-        bot.move(new_row, new_col, visited)
-
-    def push(self, bot: 'Amoebot', visited=None):
-        dr = bot.row - self.row
-        dc = bot.col - self.col
-        new_row = bot.row + dr
-        new_col = bot.col + dc
-        bot.move(new_row, new_col, visited)
-
-    def _respond_to_connection(self, mover: 'Amoebot', visited):
-        dr = self.row - mover.from_pos[0]
-        dc = self.col - mover.from_pos[1]
-        tdr = mover.to_pos[0] - mover.from_pos[0]
-        tdc = mover.to_pos[1] - mover.from_pos[1]
-        dot = dr * tdr + dc * tdc
-
-        if dot > 0:
-            mover.pull(self, visited)
-        elif dot < 0:
-            mover.push(self, visited)
-        # Ha dot == 0 → oldalra van, nem mozdítjuk
+    def update_connected(self):
+        for bot in self.connected_bots:
+            if bot is not self:
+                bot.move(self.heading)
 
     def _target_select(self):
         neighbors = self.triangle_map.get_neighbors(self.row, self.col)
@@ -119,6 +88,8 @@ class Amoebot():
         elif self.behavior == BehaviorType.INTELLIGENT:
             if self.intelligent_behavior:
                 self.intelligent_behavior(self)
+                if (not self.triangle_map.is_valid(*self.target)) or self.triangle_map.is_occupied(*self.target):
+                    return False
             else:
                 return False
         return True
@@ -151,11 +122,8 @@ class Amoebot():
                     self.phase = "expansion"
                     self.progress = 0.0
                     self.idle_timer = 0
+                    self.update_connected()
 
-                    visited = set()
-                    for bot in self.connected_bots:
-                        bot._respond_to_connection(self, visited)
-    
     def update_expansion(self):
         self.progress += Config.Amoebot.SPEED
         if self.progress >= 1.0:

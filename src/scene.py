@@ -6,7 +6,7 @@ from enum import Enum, auto
 from src.config import Config
 from src.menu_button import MenuButton
 from src.amoebot import Amoebot
-from src.behaviors import BehaviorType, Behavior
+from src.behaviors import AmoebotState, BehaviorType, Behavior
 
 class SceneType(Enum):
     MENU = auto()
@@ -96,4 +96,44 @@ class Scene:
             self.simulation.amoebots.append(bot)
 
     def setup_crawler_motion_scene(self):
-        pass
+        rows = 4
+        cols = 4
+        base_row = 8
+        base_col = 8
+
+        # Commanded botok listáját ürítjük
+        self.simulation.commanded_bots.clear()
+
+        # 2D lista a botokhoz
+        bots = [[None for _ in range(cols)] for _ in range(rows)]
+
+        # Létrehozás
+        for r in range(rows):
+            for c in range(cols):
+                bot = Amoebot(self.simulation.triangle_map, base_row + r, base_col + c)
+                bots[r][c] = bot
+                self.simulation.amoebots.append(bot)
+
+        # Kapcsolatok létrehozása (jobbra és lefelé)
+        for r in range(rows):
+            for c in range(cols):
+                current = bots[r][c]
+                if c + 1 < cols:
+                    current.connect(bots[r][c + 1])
+                if r + 1 < rows:
+                    current.connect(bots[r + 1][c])
+
+        # Vezérbot (pl. bal felső)
+        leader = bots[0][0]
+        #leader.set_state(AmoebotState.ONE_STEP)
+        leader.set_behavior(BehaviorType.TO_HEADING)
+        leader.set_heading(0)  # jobbra
+
+        # Leader hozzáadása a commanded_bots-hoz
+        self.simulation.commanded_bots.append(leader)
+
+        # A többi bot passzív
+        for r in range(rows):
+            for c in range(cols):
+                if bots[r][c] is not leader:
+                    bots[r][c].set_state(AmoebotState.PASSIVE)
