@@ -24,16 +24,29 @@ class Behavior:
         if free:
             self.target = random.choice(free)
 
-    def stay_put(self):
-        #NOT GOOD
-        self.target = (self.row, self.col)
-
     def center_seek_behavior(bot):
         center_row = Config.Grid.ROWS // 2
         center_col = Config.Grid.COLS // 2
         neighbors = bot.triangle_map.get_neighbors(bot.row, bot.col)
         best = min(neighbors, key=lambda pos: (center_row - pos[0])**2 + (center_col - pos[1])**2)
         bot.target = best
+
+    def zigzag_behavior(bot):
+        if not hasattr(bot, "zigzag_counter"):
+            bot.zigzag_counter = 0
+            bot.zigzag_phase = 0
+        if bot.zigzag_phase == 0:
+            bot.heading = 3
+        else:
+            bot.heading = 5
+        bot.zigzag_counter += 1
+        if bot.zigzag_counter >= 2:
+            bot.zigzag_counter = 0
+            bot.zigzag_phase = (bot.zigzag_phase + 1) % 2
+        target = bot.triangle_map.get_valid_target_position(bot.row, bot.col, bot.heading)
+        if target:
+            bot.target = target
+
 
 #EXAMPLE:
 #bot.set_intelligent_behavior(center_seek_behavior)

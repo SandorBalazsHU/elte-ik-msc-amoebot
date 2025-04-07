@@ -12,8 +12,8 @@ class SceneType(Enum):
     MENU = auto()
     RANDOM = auto()
     CONNECTED = auto()
-    WORM = auto()
-    CRAWLER = auto()
+    CENTER = auto()
+    META_MODUL = auto()
     SETTINGS = auto()
     EXIT = auto()
 class Scene:
@@ -33,8 +33,8 @@ class Scene:
             SceneType.MENU: self.menu,
             SceneType.RANDOM: self.setup_random_scene,
             SceneType.CONNECTED: self.setup_connected_motion_scene,
-            SceneType.WORM: self.setup_worm_motion_scene,
-            SceneType.CRAWLER: self.setup_crawler_motion_scene,
+            SceneType.CENTER: self.setup_center_motion_scene,
+            SceneType.META_MODUL: self.setup_meta_modul_motion_scene,
             SceneType.SETTINGS: self.settings,
             SceneType.EXIT: self.exit
         }
@@ -57,8 +57,8 @@ class Scene:
         )
         self.menu_object.add.button("Random", lambda: self.set_scene(SceneType.RANDOM))
         self.menu_object.add.button("Connected motion", lambda: self.set_scene(SceneType.CONNECTED))
-        self.menu_object.add.button("Worm motion", lambda: self.set_scene(SceneType.WORM))
-        self.menu_object.add.button("Crawler motion", lambda: self.set_scene(SceneType.CRAWLER))
+        self.menu_object.add.button("To center", lambda: self.set_scene(SceneType.CENTER))
+        self.menu_object.add.button("Meta modul", lambda: self.set_scene(SceneType.META_MODUL))
         self.menu_object.add.button("Settings", lambda: self.set_scene(SceneType.SETTINGS))
         self.menu_object.add.button("Exit", lambda: self.set_scene(SceneType.EXIT))
         self.menu_object.enable()
@@ -106,31 +106,42 @@ class Scene:
             bot.set_heading(3)
             self.simulation.amoebots.append(bot)
 
-    def setup_worm_motion_scene(self):
-        BOT_NUMBER = 12
-        for i in range(1, BOT_NUMBER + 1):
-            bot = Amoebot(self.simulation.triangle_map, i, 3)
+    def setup_center_motion_scene(self):
+        self.simulation.amoebots = [Amoebot(self.simulation.triangle_map, random.randint(0, Config.Grid.ROWS - 1),
+                                      random.randint(0, Config.Grid.COLS - 1)) for _ in range(Config.Scene.BOT_NUMBER)]
+        for bot in self.simulation.amoebots:
             bot.set_behavior(BehaviorType.INTELLIGENT)
             bot.set_intelligent_behavior(Behavior.center_seek_behavior)
-            self.simulation.amoebots.append(bot)
 
-    def setup_crawler_motion_scene(self):
-        rows = 4
-        cols = 4
-        base_row = 8
-        base_col = 8
+    def setup_meta_modul_motion_scene(self):
+        bots = self.create_meta_modul(start_row=0, start_col=0, rows=4, cols=4, color=(255,0,0))
+        leader = bots[3][3]
+        leader.set_state(AmoebotState.ACTIVE)
+        leader.set_behavior(BehaviorType.INTELLIGENT)
+        leader.set_intelligent_behavior(Behavior.zigzag_behavior)
+        self.simulation.commanded_bots.append(leader)
 
-        # 2D lista a botokhoz
+        bots2 = self.create_meta_modul(start_row=8, start_col=7, rows=4, cols=6, color=(255,255,0))
+        leader2 = bots2[0][0]
+        leader2.set_state(AmoebotState.ACTIVE)
+        leader2.set_behavior(BehaviorType.TO_HEADING)
+        leader2.set_heading(2)
+        self.simulation.commanded_bots.append(leader2)
+
+        wall = self.create_meta_modul(start_row=6, start_col=0, rows=2, cols=6, color=(255,255,255))
+
+        wall2 = self.create_meta_modul(start_row=0, start_col=Config.Grid.COLS-2, rows=Config.Grid.COLS, cols=2, color=(255,255,255))
+
+    def create_meta_modul(self, start_row: int, start_col: int, rows: int, cols: int, color = None):
         bots = [[None for _ in range(cols)] for _ in range(rows)]
-
-        # Létrehozás
         for r in range(rows):
             for c in range(cols):
-                bot = Amoebot(self.simulation.triangle_map, base_row + r, base_col + c)
+                bot = Amoebot(self.simulation.triangle_map, start_row + r, start_col + c)
+                if color:
+                    bot.color = color
+                bot.set_state(AmoebotState.PASSIVE)
                 bots[r][c] = bot
                 self.simulation.amoebots.append(bot)
-
-        # Kapcsolatok létrehozása (jobbra és lefelé)
         for r in range(rows):
             for c in range(cols):
                 current = bots[r][c]
@@ -138,16 +149,4 @@ class Scene:
                     current.connect(bots[r][c + 1])
                 if r + 1 < rows:
                     current.connect(bots[r + 1][c])
-
-        # Vezérbot (pl. bal felső)
-        leader = bots[0][0]
-        #leader.set_state(AmoebotState.ONE_STEP)
-        leader.set_behavior(BehaviorType.TO_HEADING)
-        leader.set_heading(0)  # jobbra
-        self.simulation.commanded_bots.append(leader)
-
-        # A többi bot passzív
-        for r in range(rows):
-            for c in range(cols):
-                if bots[r][c] is not leader:
-                    bots[r][c].set_state(AmoebotState.PASSIVE)
+        return bots

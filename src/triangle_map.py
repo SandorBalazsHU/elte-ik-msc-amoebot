@@ -4,6 +4,15 @@ import math
 from src.config import Config
 from src.drawer import AntiAliasedDrawer
 
+'''
+NE FELEDD:
+    0 = bal-fel
+    1 = jobb-fel
+    2 = bal
+    3 = jobb
+    4 = bal-le
+    5 = jobb-le
+'''
 class TriangleMap:
     def __init__(self):
         self.triangle_grid = []
