@@ -56,3 +56,11 @@ class TriangleMap:
             if 0 <= nr < Config.Grid.ROWS and 0 <= nc < Config.Grid.COLS:
                 triangle_neighbors.append((nr, nc))
         return triangle_neighbors
+
+    def get_neighbor_directions(self, row):
+        directions_even = [(-1, -1), (-1, 0), (0, -1), (0, 1), (1, -1), (1, 0)]
+        directions_odd  = [(-1, 0), (-1, 1), (0, -1), (0, 1), (1, 0), (1, 1)]
+        return directions_odd if row % 2 else directions_even
+
+    def is_valid(self, row, col):
+        return 0 <= row < Config.Grid.ROWS and 0 <= col < Config.Grid.COLS

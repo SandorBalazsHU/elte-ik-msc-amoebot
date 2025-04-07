@@ -19,6 +19,7 @@ class Behavior:
             self.target = random.choice(free)
 
     def stay_put(self):
+        #NOT GOOD
         self.target = (self.row, self.col)
 
     def center_seek_behavior(bot):

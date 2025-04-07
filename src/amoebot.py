@@ -21,7 +21,7 @@ class Amoebot():
         self.progress = 0.0
         self.idle_timer = 0
 
-    def set_behavior(self, behavior: BehaviorType):
+    def set_behavior(self, behavior: 'BehaviorType'):
         self.behavior = behavior
 
     def set_intelligent_behavior(self, behavior_fn: callable):
@@ -41,9 +41,17 @@ class Amoebot():
             self.target = random.choice(free_neighbors)
 
         elif self.behavior == BehaviorType.TO_HEADING:
-            if self.heading == -1 or self.heading >= len(neighbors):
+            directions = self.triangle_map.get_neighbor_directions(self.row)
+            if self.heading == -1 or self.heading >= len(directions):
                 return False
-            self.target = neighbors[self.heading]
+            dr, dc = directions[self.heading]
+            target_row = self.row + dr
+            target_col = self.col + dc
+            if not self.triangle_map.is_valid(target_row, target_col):
+                return False
+            if self.triangle_map.is_occupied(target_row, target_col):
+                return False
+            self.target = (target_row, target_col)
 
         elif self.behavior == BehaviorType.INTELLIGENT:
             if self.intelligent_behavior:
