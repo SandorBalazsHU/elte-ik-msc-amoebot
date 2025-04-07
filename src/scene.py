@@ -14,6 +14,7 @@ class SceneType(Enum):
     CONNECTED = auto()
     WORM = auto()
     CRAWLER = auto()
+    SETTINGS = auto()
     EXIT = auto()
 class Scene:
     def __init__(self, simulation: 'Simulation'):
@@ -34,6 +35,7 @@ class Scene:
             SceneType.CONNECTED: self.setup_connected_motion_scene,
             SceneType.WORM: self.setup_worm_motion_scene,
             SceneType.CRAWLER: self.setup_crawler_motion_scene,
+            SceneType.SETTINGS: self.settings,
             SceneType.EXIT: self.exit
         }
     
@@ -57,7 +59,24 @@ class Scene:
         self.menu_object.add.button("Connected motion", lambda: self.set_scene(SceneType.CONNECTED))
         self.menu_object.add.button("Worm motion", lambda: self.set_scene(SceneType.WORM))
         self.menu_object.add.button("Crawler motion", lambda: self.set_scene(SceneType.CRAWLER))
+        self.menu_object.add.button("Settings", lambda: self.set_scene(SceneType.SETTINGS))
         self.menu_object.add.button("Exit", lambda: self.set_scene(SceneType.EXIT))
+        self.menu_object.enable()
+    
+    def settings(self):
+        self.menu_object = pygame_menu.Menu(
+            'Settings',
+            self.simulation.width,
+            self.simulation.height,
+            theme=pygame_menu.themes.THEME_DARK
+        )
+        def toggle_grid(value):
+            Config.Scene.show_grid = value
+        def toggle_jump_pos(value):
+            Config.Scene.jump_pos = value
+        self.menu_object.add.toggle_switch('Show Grid', Config.Scene.show_grid, onchange=toggle_grid, toggleswitch_id='Grid')
+        self.menu_object.add.toggle_switch('Jump', Config.Scene.jump_pos, onchange=toggle_jump_pos, toggleswitch_id='Jump')
+        self.menu_object.add.button('Back', lambda: self.set_scene(SceneType.MENU))
         self.menu_object.enable()
 
     def exit(self):
@@ -92,7 +111,7 @@ class Scene:
         for i in range(1, BOT_NUMBER + 1):
             bot = Amoebot(self.simulation.triangle_map, i, 3)
             bot.set_behavior(BehaviorType.INTELLIGENT)
-            bot.set_intelligent_behavior(Behavior.move_right)
+            bot.set_intelligent_behavior(Behavior.center_seek_behavior)
             self.simulation.amoebots.append(bot)
 
     def setup_crawler_motion_scene(self):
@@ -100,9 +119,6 @@ class Scene:
         cols = 4
         base_row = 8
         base_col = 8
-
-        # Commanded botok listáját ürítjük
-        self.simulation.commanded_bots.clear()
 
         # 2D lista a botokhoz
         bots = [[None for _ in range(cols)] for _ in range(rows)]
@@ -128,8 +144,6 @@ class Scene:
         #leader.set_state(AmoebotState.ONE_STEP)
         leader.set_behavior(BehaviorType.TO_HEADING)
         leader.set_heading(0)  # jobbra
-
-        # Leader hozzáadása a commanded_bots-hoz
         self.simulation.commanded_bots.append(leader)
 
         # A többi bot passzív

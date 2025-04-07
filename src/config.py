@@ -38,3 +38,5 @@ class Config:
         DEFAULT_BUTTON_COLOR = (220, 220, 220)
         DEFAULT_BUTTON_TEXT_COLOR = (0, 0, 0)
         BOT_NUMBER = 30
+        show_grid = True
+        jump_pos = True

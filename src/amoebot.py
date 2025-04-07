@@ -38,7 +38,9 @@ class Amoebot():
             self.set_behavior(BehaviorType.STAY)
 
         elif new_state == AmoebotState.ONE_STEP:
-            self.set_behavior(BehaviorType.TO_HEADING) 
+            self.set_behavior(BehaviorType.TO_HEADING)
+            if Config.Scene.jump_pos:
+                self.idle_timer = Config.Amoebot.IDLE_DELAY
 
         elif new_state == AmoebotState.ACTIVE:
             self.set_behavior(BehaviorType.RANDOM)
@@ -54,12 +56,8 @@ class Amoebot():
         #bot.connected_bots.add(self)
 
     def move(self, heading: int):
-        #print("updated")
         self.heading = heading
         self.set_state(AmoebotState.ONE_STEP)
-        #self.set_state(AmoebotState.ACTIVE)
-        #self.set_behavior(BehaviorType.TO_HEADING)
-        #self.update_connected()
 
     def update_connected(self):
         for bot in self.connected_bots:

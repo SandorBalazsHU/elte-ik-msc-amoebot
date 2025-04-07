@@ -46,21 +46,20 @@ class Simulation:
 
             self.screen.fill(Config.Window.BACKGROUND_COLOR)
 
-            if self.scene_manager.current_scene == SceneType.MENU:
+            if self.scene_manager.current_scene in {SceneType.MENU, SceneType.SETTINGS}:
                 if self.scene_manager.menu_object.is_enabled():
                     self.scene_manager.menu_object.update(events)
                     self.scene_manager.menu_object.draw(self.screen)
             else:
-                self.screen.blit(self.grid_surface, (0, 0))
-                
-                for amoebot in self.commanded_bots:
-                    amoebot.update()
-                    amoebot.draw(self.drawer)
-                self.scene_manager.menu_button.draw(self.screen)
-
+                if Config.Scene.show_grid:
+                    self.screen.blit(self.grid_surface, (0, 0))
+                for commanded_bot in self.commanded_bots:
+                    commanded_bot.update()
+                    commanded_bot.draw(self.drawer)
                 for amoebot in self.amoebots:
-                    amoebot.update()
-                    amoebot.draw(self.drawer)
+                    if amoebot not in self.commanded_bots:
+                        amoebot.update()
+                        amoebot.draw(self.drawer)
                 self.scene_manager.menu_button.draw(self.screen)
 
             pygame.display.flip()
