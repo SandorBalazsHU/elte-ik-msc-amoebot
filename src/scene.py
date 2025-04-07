@@ -39,6 +39,7 @@ class Scene:
     
     def set_scene(self, scene_type: SceneType):
         self.simulation.amoebots.clear()
+        self.simulation.commanded_bots.clear()
         self.simulation.triangle_map.clear_occupied()
         self.current_scene = scene_type
         handler = self.scene_map.get(scene_type)

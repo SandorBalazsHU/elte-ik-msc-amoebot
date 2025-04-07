@@ -12,6 +12,7 @@ class Simulation:
         self.screen = None
         self.clock = None
         self.triangle_map: TriangleMap = None
+        self.commanded_bots = []
         self.amoebots = []
         self.drawer: AntiAliasedDrawer = None
         self.scene_manager: Scene = None
@@ -51,6 +52,12 @@ class Simulation:
                     self.scene_manager.menu_object.draw(self.screen)
             else:
                 self.screen.blit(self.grid_surface, (0, 0))
+                
+                for amoebot in self.commanded_bots:
+                    amoebot.update()
+                    amoebot.draw(self.drawer)
+                self.scene_manager.menu_button.draw(self.screen)
+
                 for amoebot in self.amoebots:
                     amoebot.update()
                     amoebot.draw(self.drawer)

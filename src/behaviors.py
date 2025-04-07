@@ -2,6 +2,12 @@ import random
 from enum import Enum, auto
 from src.config import Config
 
+class AmoebotState(Enum):
+    INACTIVE = auto()      # nem mozog és nem mozdítható
+    PASSIVE = auto()       # nem mozog magától, de mozdítható
+    ACTIVE = auto()        # képes dönteni és mozogni
+    ONE_STEP = auto()      # egyet lép külső hatásra és megint passive
+
 class BehaviorType(Enum):
     RANDOM = auto()
     STAY = auto()

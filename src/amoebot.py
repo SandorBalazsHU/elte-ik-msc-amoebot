@@ -3,11 +3,13 @@ import math
 
 from src.config import Config
 from src.behaviors import BehaviorType
+from src.behaviors import AmoebotState
 
 class Amoebot():
     def __init__(self, triangle_map: 'TriangleMap',  row: int, col:int):
         self.EYE_ON = True
-        self.behavior = BehaviorType.RANDOM
+        self.behavior: 'BehaviorType' = BehaviorType.RANDOM
+        self.state: 'AmoebotState' = AmoebotState.ACTIVE
         self.intelligent_behavior = None 
         self.heading = 0
         self.target = (0,0)
@@ -16,7 +18,9 @@ class Amoebot():
         self.col = col
         self.from_pos = (self.row, self.col)
         self.to_pos = (self.row, self.col)
+        self.triangle_map.occupy(*self.to_pos)
         self.color = [random.randint(50, 255) for _ in range(3)]
+        self.connected_bots = set()
         self.phase = "idle"
         self.progress = 0.0
         self.idle_timer = 0
@@ -24,9 +28,74 @@ class Amoebot():
     def set_behavior(self, behavior: 'BehaviorType'):
         self.behavior = behavior
 
+    def set_state(self, new_state: AmoebotState):
+        self.state = new_state
+
+        if new_state == AmoebotState.INACTIVE:
+            self.set_behavior(BehaviorType.STAY)
+
+        elif new_state == AmoebotState.PASSIVE:
+            self.set_behavior(BehaviorType.STAY) 
+
+        elif new_state == AmoebotState.ACTIVE:
+            self.set_behavior(BehaviorType.RANDOM)
+
     def set_intelligent_behavior(self, behavior_fn: callable):
         self.behavior = BehaviorType.INTELLIGENT
         self.intelligent_behavior = behavior_fn
+
+    def connect(self, bot: 'Amoebot'):
+        if bot is self:
+            return
+        self.connected_bots.add(bot)
+        bot.connected_bots.add(self)
+
+    def move(self, row: int, col: int, visited=None):
+        if visited is None:
+            visited = set()
+
+        if self in visited:
+            return
+
+        visited.add(self)
+
+        if not self.triangle_map.is_valid(row, col):
+            return
+        if self.triangle_map.is_occupied(row, col):
+            return
+
+        self.to_pos = (row, col)  # NEM állítjuk át a fázist!
+        self.target = self.to_pos
+
+        for connected_bot in self.connected_bots:
+            connected_bot._respond_to_connection(self, visited)
+
+    def pull(self, bot: 'Amoebot', visited=None):
+        dr = self.row - bot.row
+        dc = self.col - bot.col
+        new_row = self.row + dr
+        new_col = self.col + dc
+        bot.move(new_row, new_col, visited)
+
+    def push(self, bot: 'Amoebot', visited=None):
+        dr = bot.row - self.row
+        dc = bot.col - self.col
+        new_row = bot.row + dr
+        new_col = bot.col + dc
+        bot.move(new_row, new_col, visited)
+
+    def _respond_to_connection(self, mover: 'Amoebot', visited):
+        dr = self.row - mover.from_pos[0]
+        dc = self.col - mover.from_pos[1]
+        tdr = mover.to_pos[0] - mover.from_pos[0]
+        tdc = mover.to_pos[1] - mover.from_pos[1]
+        dot = dr * tdr + dc * tdc
+
+        if dot > 0:
+            mover.pull(self, visited)
+        elif dot < 0:
+            mover.push(self, visited)
+        # Ha dot == 0 → oldalra van, nem mozdítjuk
 
     def _target_select(self):
         neighbors = self.triangle_map.get_neighbors(self.row, self.col)
@@ -35,29 +104,23 @@ class Amoebot():
             return False
 
         if self.behavior == BehaviorType.STAY:
-            return False  # nem mozdul
+            return False
 
         elif self.behavior == BehaviorType.RANDOM:
             self.target = random.choice(free_neighbors)
 
         elif self.behavior == BehaviorType.TO_HEADING:
-            directions = self.triangle_map.get_neighbor_directions(self.row)
-            if self.heading == -1 or self.heading >= len(directions):
+            target = self.triangle_map.get_valid_target_position(self.row, self.col, self.heading)
+            if target:
+                self.target = target
+            else:
                 return False
-            dr, dc = directions[self.heading]
-            target_row = self.row + dr
-            target_col = self.col + dc
-            if not self.triangle_map.is_valid(target_row, target_col):
-                return False
-            if self.triangle_map.is_occupied(target_row, target_col):
-                return False
-            self.target = (target_row, target_col)
 
         elif self.behavior == BehaviorType.INTELLIGENT:
             if self.intelligent_behavior:
                 self.intelligent_behavior(self)
             else:
-                return False  # nincs intelligens logika
+                return False
         return True
 
     def set_heading(self, heading:int):
@@ -75,17 +138,23 @@ class Amoebot():
             self.update_contraction()
 
     def update_idle(self):
-        if self.heading != -1:
+        self.triangle_map.occupy(*self.to_pos)
+
+        if self.state in {AmoebotState.ACTIVE, AmoebotState.ONE_STEP}:
             self.idle_timer += 1
             if self.idle_timer >= Config.Amoebot.IDLE_DELAY:
                 if self._target_select():
                     self.from_pos = (self.row, self.col)
                     self.triangle_map.release(*self.from_pos)
                     self.to_pos = self.target
-                    self.triangle_map.occupy(*self.to_pos) 
+                    self.triangle_map.occupy(*self.to_pos)
                     self.phase = "expansion"
                     self.progress = 0.0
                     self.idle_timer = 0
+
+                    visited = set()
+                    for bot in self.connected_bots:
+                        bot._respond_to_connection(self, visited)
     
     def update_expansion(self):
         self.progress += Config.Amoebot.SPEED
@@ -113,7 +182,8 @@ class Amoebot():
             self.phase = "idle"
             self.progress = 0.0
             self.idle_timer = 0
-
+            if self.state == AmoebotState.ONE_STEP:
+                self.set_state(AmoebotState.PASSIVE)
 
     def draw(self, drawer):
         p1 = self.triangle_map.triangle_grid[self.from_pos[0]][self.from_pos[1]]

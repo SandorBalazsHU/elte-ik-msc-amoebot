@@ -65,6 +65,23 @@ class TriangleMap:
         directions_even = [(-1, -1), (-1, 0), (0, -1), (0, 1), (1, -1), (1, 0)]
         directions_odd  = [(-1, 0), (-1, 1), (0, -1), (0, 1), (1, 0), (1, 1)]
         return directions_odd if row % 2 else directions_even
+    
+    def get_target_position(self, row, col, heading):
+        directions = self.get_neighbor_directions(row)
+        if heading is None or heading < 0 or heading >= len(directions):
+            return None
+        dr, dc = directions[heading]
+        target_row = row + dr
+        target_col = col + dc
+        if self.is_valid(target_row, target_col):
+            return (target_row, target_col)
+        return None
 
     def is_valid(self, row, col):
         return 0 <= row < Config.Grid.ROWS and 0 <= col < Config.Grid.COLS
+    
+    def get_valid_target_position(self, row, col, heading):
+        target = self.get_target_position(row, col, heading)
+        if target and not self.is_occupied(*target):
+            return target
+        return None
