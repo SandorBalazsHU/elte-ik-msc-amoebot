@@ -53,16 +53,26 @@ class Amoebot():
         if bot is self:
             return
         self.connected_bots.add(bot)
-        #bot.connected_bots.add(self)
+        bot.connected_bots.add(self)
 
     def move(self, heading: int):
+        if self.state == AmoebotState.ACTIVE:
+            return
         self.heading = heading
         self.set_state(AmoebotState.ONE_STEP)
 
-    def update_connected(self):
+    def update_connected(self, visited=None):
+        if visited is None:
+            visited = set()
+
+        if self in visited:
+            return
+        visited.add(self)
+
         for bot in self.connected_bots:
-            if bot is not self:
+            if bot not in visited:
                 bot.move(self.heading)
+                bot.update_connected(visited)
 
     def _target_select(self):
         neighbors = self.triangle_map.get_neighbors(self.row, self.col)
