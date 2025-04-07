@@ -11,7 +11,7 @@ class Simulation:
         self.width, self.height = Config.Window.WIDTH, Config.Window.HEIGHT
         self.screen = None
         self.clock = None
-        self.triangle_map = []
+        self.triangle_map: TriangleMap = None
         self.amoebots = []
         self.drawer: AntiAliasedDrawer = None
         self.scene_manager: Scene = None

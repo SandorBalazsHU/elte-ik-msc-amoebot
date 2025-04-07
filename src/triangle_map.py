@@ -7,8 +7,12 @@ from src.drawer import AntiAliasedDrawer
 class TriangleMap:
     def __init__(self):
         self.triangle_grid = []
-        self.occupied = [[False for _ in range(Config.Grid.COLS)] for _ in range(Config.Grid.ROWS)]
+        self.occupied = []
         self.__generate_triangle_grid()
+        self.clear_occupied()
+
+    def clear_occupied(self):
+        self.occupied = [[False for _ in range(Config.Grid.COLS)] for _ in range(Config.Grid.ROWS)]
 
     def is_occupied(self, row, col):
         return self.occupied[row][col]

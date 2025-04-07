@@ -39,6 +39,7 @@ class Scene:
     
     def set_scene(self, scene_type: SceneType):
         self.simulation.amoebots.clear()
+        self.simulation.triangle_map.clear_occupied()
         self.current_scene = scene_type
         handler = self.scene_map.get(scene_type)
         if handler:
@@ -68,12 +69,6 @@ class Scene:
     def setup_connected_motion_scene(self):
         BOT_NUMBER = 12
         for i in range(1, BOT_NUMBER + 1):
-            bot = Amoebot(self.simulation.triangle_map, i, 3)
-            bot.set_behavior(BehaviorType.TO_HEADING)
-            bot.set_heading(3)
-            self.simulation.amoebots.append(bot)
-
-        for i in range(1, BOT_NUMBER + 1):
             bot = Amoebot(self.simulation.triangle_map, i, 2)
             bot.set_behavior(BehaviorType.TO_HEADING)
             bot.set_heading(3)
@@ -81,6 +76,12 @@ class Scene:
 
         for i in range(1, BOT_NUMBER + 1):
             bot = Amoebot(self.simulation.triangle_map, i, 1)
+            bot.set_behavior(BehaviorType.TO_HEADING)
+            bot.set_heading(3)
+            self.simulation.amoebots.append(bot)
+
+        for i in range(1, BOT_NUMBER + 1):
+            bot = Amoebot(self.simulation.triangle_map, i, 0)
             bot.set_behavior(BehaviorType.TO_HEADING)
             bot.set_heading(3)
             self.simulation.amoebots.append(bot)
