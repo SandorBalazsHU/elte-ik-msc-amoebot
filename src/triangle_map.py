@@ -94,3 +94,12 @@ class TriangleMap:
         if target and not self.is_occupied(*target):
             return target
         return None
+
+    def get_heading_from_direction(self, from_row, from_col, to_row, to_col):
+        directions = self.get_neighbor_directions(from_row)
+        dr = to_row - from_row
+        dc = to_col - from_col
+        for index, (d_row, d_col) in enumerate(directions):
+            if dr == d_row and dc == d_col:
+                return index
+        return None  # Nem szomszédos pont

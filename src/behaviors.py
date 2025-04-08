@@ -30,6 +30,9 @@ class Behavior:
         neighbors = bot.triangle_map.get_neighbors(bot.row, bot.col)
         best = min(neighbors, key=lambda pos: (center_row - pos[0])**2 + (center_col - pos[1])**2)
         bot.target = best
+        heading = bot.triangle_map.get_heading_from_direction(bot.row, bot.col, best[0], best[1])
+        if heading is not None:
+            bot.heading = heading    
 
     def zigzag_behavior(bot):
         if not hasattr(bot, "zigzag_counter"):

@@ -15,6 +15,7 @@ class SceneType(Enum):
     CENTER = auto()
     WALL = auto()
     META_MODUL = auto()
+    META_MODUL_2 = auto()
     SETTINGS = auto()
     EXIT = auto()
 class Scene:
@@ -37,6 +38,7 @@ class Scene:
             SceneType.CENTER: self.setup_center_motion_scene,
             SceneType.WALL: self.setup_wall_motion_scene,
             SceneType.META_MODUL: self.setup_meta_modul_motion_scene,
+            SceneType.META_MODUL_2: self.setup_meta_modul_2_motion_scene,
             SceneType.SETTINGS: self.settings,
             SceneType.EXIT: self.exit
         }
@@ -62,6 +64,7 @@ class Scene:
         self.menu_object.add.button("To center", lambda: self.set_scene(SceneType.CENTER))
         self.menu_object.add.button("Wall", lambda: self.set_scene(SceneType.WALL))
         self.menu_object.add.button("Meta modul", lambda: self.set_scene(SceneType.META_MODUL))
+        self.menu_object.add.button("Meta modul 2", lambda: self.set_scene(SceneType.META_MODUL_2))
         self.menu_object.add.button("Settings", lambda: self.set_scene(SceneType.SETTINGS))
         self.menu_object.add.button("Exit", lambda: self.set_scene(SceneType.EXIT))
         self.menu_object.enable()
@@ -140,7 +143,26 @@ class Scene:
         wall = self.create_meta_modul(start_row=6, start_col=0, rows=2, cols=10, color=(255,255,255))
         wall2 = self.create_meta_modul(start_row=0, start_col=Config.Grid.COLS-2, rows=Config.Grid.COLS, cols=2, color=(255,255,255))
         create_random_moving_amoebots(self, count=40, x_min=0, x_max=12, y_min=0, y_max=5)
-        create_random_moving_amoebots(self, count=40, x_min=0, x_max=12, y_min=8, y_max=14)    
+        create_random_moving_amoebots(self, count=40, x_min=0, x_max=12, y_min=8, y_max=14)
+
+    def setup_meta_modul_2_motion_scene(self):
+        bots = self.create_meta_modul(start_row=0, start_col=0, rows=4, cols=4, color=(255,30,30))
+        leader = bots[3][3]
+        leader.color=(100,30,30)
+        leader.set_state(AmoebotState.ACTIVE)
+        leader.set_behavior(BehaviorType.INTELLIGENT)
+        leader.set_intelligent_behavior(Behavior.center_seek_behavior)
+        self.simulation.commanded_bots.append(leader)
+
+        bots2 = self.create_meta_modul(start_row=11, start_col=9, rows=4, cols=6, color=(255,255,30))
+        leader2 = bots2[0][0]
+        leader2.color=(100,100,30)
+        leader2.set_state(AmoebotState.ACTIVE)
+        leader2.set_behavior(BehaviorType.INTELLIGENT)
+        leader2.set_intelligent_behavior(Behavior.center_seek_behavior)
+        self.simulation.commanded_bots.append(leader2)
+
+        wall = self.create_meta_modul(start_row=6, start_col=6, rows=3, cols=3, color=(255,255,255))
 
     def create_meta_modul(self, start_row: int, start_col: int, rows: int, cols: int, color = None):
         """
