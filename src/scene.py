@@ -162,7 +162,15 @@ class Scene:
         leader2.set_intelligent_behavior(Behavior.center_seek_behavior)
         self.simulation.commanded_bots.append(leader2)
 
-        wall = self.create_meta_modul(start_row=6, start_col=6, rows=3, cols=3, color=(255,255,255))
+        bots3 = self.create_meta_modul(start_row=0, start_col=12, rows=3, cols=3, color=(30,30,255))
+        leader3 = bots3[2][0]
+        leader3.color=(30,30,100)
+        leader3.set_state(AmoebotState.ACTIVE)
+        leader3.set_behavior(BehaviorType.INTELLIGENT)
+        leader3.set_intelligent_behavior(Behavior.center_seek_behavior)
+        self.simulation.commanded_bots.append(leader3)
+
+        #wall = self.create_meta_modul(start_row=7, start_col=7, rows=1, cols=1, color=(255,255,255))
 
     def create_meta_modul(self, start_row: int, start_col: int, rows: int, cols: int, color = None):
         """
