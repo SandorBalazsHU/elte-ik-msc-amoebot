@@ -62,11 +62,11 @@ class scene_library:
     def setup_wall_motion_scene(self):
         wall = self.create_meta_modul(start_row=6, start_col=0, rows=2, cols=10, color=(255,255,255))
         wall2 = self.create_meta_modul(start_row=0, start_col=Config.Grid.COLS-2, rows=Config.Grid.COLS, cols=2, color=(255,255,255))
-        self.create_random_moving_amoebots(self.scene, count=40, x_min=0, x_max=12, y_min=0, y_max=5)
-        self.create_random_moving_amoebots(self.scene, count=40, x_min=0, x_max=12, y_min=8, y_max=14)
+        self.create_random_moving_amoebots(count=40, x_min=0, x_max=12, y_min=0, y_max=5)
+        self.create_random_moving_amoebots(count=40, x_min=0, x_max=12, y_min=8, y_max=14)
 
     def setup_meta_modul_2_motion_scene(self):
-        bots = self.scene.create_meta_modul(start_row=0, start_col=0, rows=4, cols=4, color=(255,30,30))
+        bots = self.create_meta_modul(start_row=0, start_col=0, rows=4, cols=4, color=(255,30,30))
         leader = bots[3][3]
         leader.color=(100,30,30)
         leader.set_state(AmoebotState.ACTIVE)
@@ -74,7 +74,7 @@ class scene_library:
         leader.set_intelligent_behavior(Behavior.center_seek_behavior)
         self.scene.simulation.commanded_bots.append(leader)
 
-        bots2 = self.scene.create_meta_modul(start_row=11, start_col=9, rows=4, cols=6, color=(255,255,30))
+        bots2 = self.create_meta_modul(start_row=11, start_col=9, rows=4, cols=6, color=(255,255,30))
         leader2 = bots2[0][0]
         leader2.color=(100,100,30)
         leader2.set_state(AmoebotState.ACTIVE)
@@ -82,7 +82,7 @@ class scene_library:
         leader2.set_intelligent_behavior(Behavior.center_seek_behavior)
         self.scene.simulation.commanded_bots.append(leader2)
 
-        bots3 = self.scene.create_meta_modul(start_row=0, start_col=12, rows=3, cols=3, color=(30,30,255))
+        bots3 = self.create_meta_modul(start_row=0, start_col=12, rows=3, cols=3, color=(30,30,255))
         leader3 = bots3[2][0]
         leader3.color=(30,30,100)
         leader3.set_state(AmoebotState.ACTIVE)
@@ -90,7 +90,7 @@ class scene_library:
         leader3.set_intelligent_behavior(Behavior.center_seek_behavior)
         self.scene.simulation.commanded_bots.append(leader3)
 
-        #wall = self.scene.create_meta_modul(start_row=7, start_col=7, rows=1, cols=1, color=(255,255,255))
+        #wall = self.create_meta_modul(start_row=7, start_col=7, rows=1, cols=1, color=(255,255,255))
 
     def setup_snake_scene(self):
             self.scene.simulation.amoebots = [Amoebot(self.scene.simulation.triangle_map, random.randint(0, Config.Grid.ROWS - 1),
@@ -111,12 +111,12 @@ class scene_library:
         bots = [[None for _ in range(cols)] for _ in range(rows)]
         for r in range(rows):
             for c in range(cols):
-                bot = Amoebot(self.simulation.triangle_map, start_row + r, start_col + c)
+                bot = Amoebot(self.scene.simulation.triangle_map, start_row + r, start_col + c)
                 if color:
                     bot.color = color
                 bot.set_state(AmoebotState.PASSIVE)
                 bots[r][c] = bot
-                self.simulation.amoebots.append(bot)
+                self.scene.simulation.amoebots.append(bot)
         for r in range(rows):
             for c in range(cols):
                 current = bots[r][c]
@@ -140,6 +140,6 @@ class scene_library:
         for _ in range(count):
             col = random.randint(x_min, x_max)
             row = random.randint(y_min, y_max)
-            bot = Amoebot(self.simulation.triangle_map, row, col)
+            bot = Amoebot(self.scene.simulation.triangle_map, row, col)
             bot.set_behavior(BehaviorType.RANDOM)
-            self.simulation.amoebots.append(bot)
+            self.scene.simulation.amoebots.append(bot)
