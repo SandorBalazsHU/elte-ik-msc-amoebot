@@ -40,7 +40,7 @@ class scene_library:
             bot.set_intelligent_behavior(Behavior.center_seek_behavior)
     
     def setup_meta_modul_motion_scene(self):
-        bots = self.scene.create_meta_modul(start_row=0, start_col=0, rows=4, cols=4, color=(255,0,0))
+        bots = self.create_meta_modul(start_row=0, start_col=0, rows=4, cols=4, color=(255,0,0))
         leader = bots[3][3]
         leader.color=(100,0,0)
         leader.set_state(AmoebotState.ACTIVE)
@@ -48,7 +48,7 @@ class scene_library:
         leader.set_intelligent_behavior(Behavior.zigzag_behavior)
         self.scene.simulation.commanded_bots.append(leader)
 
-        bots2 = self.scene.create_meta_modul(start_row=8, start_col=7, rows=4, cols=6, color=(255,255,0))
+        bots2 = self.create_meta_modul(start_row=8, start_col=7, rows=4, cols=6, color=(255,255,0))
         leader2 = bots2[0][0]
         leader2.color=(100,100,0)
         leader2.set_state(AmoebotState.ACTIVE)
@@ -56,14 +56,14 @@ class scene_library:
         leader2.set_heading(2)
         self.scene.simulation.commanded_bots.append(leader2)
 
-        wall = self.scene.create_meta_modul(start_row=6, start_col=0, rows=2, cols=6, color=(255,255,255))
-        wall2 = self.scene.create_meta_modul(start_row=0, start_col=Config.Grid.COLS-2, rows=Config.Grid.COLS, cols=2, color=(255,255,255))
+        wall = self.create_meta_modul(start_row=6, start_col=0, rows=2, cols=6, color=(255,255,255))
+        wall2 = self.create_meta_modul(start_row=0, start_col=Config.Grid.COLS-2, rows=Config.Grid.COLS, cols=2, color=(255,255,255))
     
     def setup_wall_motion_scene(self):
-        wall = self.scene.create_meta_modul(start_row=6, start_col=0, rows=2, cols=10, color=(255,255,255))
-        wall2 = self.scene.create_meta_modul(start_row=0, start_col=Config.Grid.COLS-2, rows=Config.Grid.COLS, cols=2, color=(255,255,255))
-        create_random_moving_amoebots(self.scene, count=40, x_min=0, x_max=12, y_min=0, y_max=5)
-        create_random_moving_amoebots(self.scene, count=40, x_min=0, x_max=12, y_min=8, y_max=14)
+        wall = self.create_meta_modul(start_row=6, start_col=0, rows=2, cols=10, color=(255,255,255))
+        wall2 = self.create_meta_modul(start_row=0, start_col=Config.Grid.COLS-2, rows=Config.Grid.COLS, cols=2, color=(255,255,255))
+        self.create_random_moving_amoebots(self.scene, count=40, x_min=0, x_max=12, y_min=0, y_max=5)
+        self.create_random_moving_amoebots(self.scene, count=40, x_min=0, x_max=12, y_min=8, y_max=14)
 
     def setup_meta_modul_2_motion_scene(self):
         bots = self.scene.create_meta_modul(start_row=0, start_col=0, rows=4, cols=4, color=(255,30,30))
