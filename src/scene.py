@@ -27,15 +27,15 @@ class Scene:
         self.current_scene: SceneType = SceneType.MENU
         self.menu_object:pygame_menu.Menu = None
         self.menu_button = MenuButton(
-            pygame.Rect(10, 10, 80, 30),
+            pygame.Rect(5, 5, 80, 30),
             self.FONT1,
             "Menü",
             lambda: self.set_scene(SceneType.MENU)
         )
 
         self.step_display = StepCounterDisplay(
-        pos=(120, 10),
-        font=self.FONT1,
+        pos=(110, 5),
+        font=self.FONT2,
         color=Config.Scene.DEFAULT_BUTTON_COLOR,
         text_color=Config.Scene.DEFAULT_BUTTON_TEXT_COLOR,
         label_color=Config.Scene.DEFAULT_TEXT_COLOR
