@@ -92,6 +92,10 @@ class scene_library:
 
         #wall = self.scene.create_meta_modul(start_row=7, start_col=7, rows=1, cols=1, color=(255,255,255))
 
+    def setup_snake_scene(self):
+            self.scene.simulation.amoebots = [Amoebot(self.scene.simulation.triangle_map, random.randint(0, Config.Grid.ROWS - 1),
+                                                random.randint(0, Config.Grid.COLS - 1)) for _ in range(Config.Scene.BOT_NUMBER)]
+
     def create_meta_modul(self, start_row: int, start_col: int, rows: int, cols: int, color = None):
         """
         Létrehoz egy összekapcsolt NxM-es amőbotblokkot a megadott kezdőpozíciótól.

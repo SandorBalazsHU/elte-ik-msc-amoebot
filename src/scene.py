@@ -15,6 +15,7 @@ class SceneType(Enum):
     WALL = auto()
     META_MODUL = auto()
     META_MODUL_2 = auto()
+    SNAKE = auto()
     SETTINGS = auto()
     EXIT = auto()
 class Scene:
@@ -49,6 +50,7 @@ class Scene:
             SceneType.WALL: self.scene_library.setup_wall_motion_scene,
             SceneType.META_MODUL: self.scene_library.setup_meta_modul_motion_scene,
             SceneType.META_MODUL_2: self.scene_library.setup_meta_modul_2_motion_scene,
+            SceneType.SNAKE: self.scene_library.setup_snake_scene,
             SceneType.SETTINGS: self.settings,
             SceneType.EXIT: self.exit
         }
@@ -91,6 +93,7 @@ class Scene:
         self.simulation.height,
         theme=pygame_menu.themes.THEME_DARK
         )
+        simulations_02_menu.add.button("Snake", lambda: self.set_scene(SceneType.SNAKE))
         simulations_02_menu.add.button('Back', pygame_menu.events.BACK)
 
         self.menu_object.add.button("Simulations 01", simulations_01_menu)
