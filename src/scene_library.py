@@ -93,8 +93,44 @@ class scene_library:
         #wall = self.create_meta_modul(start_row=7, start_col=7, rows=1, cols=1, color=(255,255,255))
 
     def setup_snake_scene(self):
-            self.scene.simulation.amoebots = [Amoebot(self.scene.simulation.triangle_map, random.randint(0, Config.Grid.ROWS - 1),
-                                                random.randint(0, Config.Grid.COLS - 1)) for _ in range(Config.Scene.BOT_NUMBER)]
+        snake_head = self.create_meta_modul(start_row=5, start_col=4, rows=4, cols=2, color=(255,30,30))
+        leader = snake_head[3][1]
+        back01 = snake_head[3][0]
+        leader.color=(100,30,30)
+        leader.set_state(AmoebotState.ACTIVE)
+        leader.set_behavior(BehaviorType.TO_HEADING)
+        leader.set_heading(3)
+        self.scene.simulation.commanded_bots.append(leader)
+
+        snake_body_01 = self.create_meta_modul(start_row=5, start_col=2, rows=4, cols=2, color=(255,255,30))
+        leader02 = snake_body_01[3][1]
+        back02 = snake_body_01[3][0]
+        leader02.connect(back01)
+
+        snake_body_02 = self.create_meta_modul(start_row=5, start_col=0, rows=4, cols=2, color=(30,30,255))
+        leader03 = snake_body_02[3][1]
+        back03 = snake_body_02[3][0]
+        leader03.connect(back02)
+
+    def setup_crawler_motion_scene(self):
+        snake_head = self.create_meta_modul(start_row=5, start_col=4, rows=4, cols=2, color=(255,30,30))
+        leader = snake_head[3][1]
+        back01 = snake_head[3][0]
+        leader.color=(100,30,30)
+        leader.set_state(AmoebotState.ACTIVE)
+        leader.set_behavior(BehaviorType.TO_HEADING)
+        leader.set_heading(3)
+        self.scene.simulation.commanded_bots.append(leader)
+
+        snake_body_01 = self.create_meta_modul(start_row=5, start_col=2, rows=4, cols=2, color=(255,255,30))
+        leader02 = snake_body_01[3][1]
+        back02 = snake_body_01[3][0]
+        leader02.connect(back01)
+
+        snake_body_02 = self.create_meta_modul(start_row=5, start_col=0, rows=4, cols=2, color=(30,30,255))
+        leader03 = snake_body_02[3][1]
+        back03 = snake_body_02[3][0]
+        leader03.connect(back02)
 
     def create_meta_modul(self, start_row: int, start_col: int, rows: int, cols: int, color = None):
         """
