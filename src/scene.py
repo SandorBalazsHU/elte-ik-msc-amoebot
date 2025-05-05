@@ -59,12 +59,30 @@ class Scene:
             self.simulation.height,
             theme=pygame_menu.themes.THEME_DARK
         )
-        self.menu_object.add.button("Random", lambda: self.set_scene(SceneType.RANDOM))
-        self.menu_object.add.button("Connected motion", lambda: self.set_scene(SceneType.CONNECTED))
-        self.menu_object.add.button("To center", lambda: self.set_scene(SceneType.CENTER))
-        self.menu_object.add.button("Wall", lambda: self.set_scene(SceneType.WALL))
-        self.menu_object.add.button("Meta modul", lambda: self.set_scene(SceneType.META_MODUL))
-        self.menu_object.add.button("Meta modul 2", lambda: self.set_scene(SceneType.META_MODUL_2))
+        simulations_01_menu = pygame_menu.Menu(
+        "Simulations 01",
+        self.simulation.width,
+        self.simulation.height,
+        theme=pygame_menu.themes.THEME_DARK
+        )
+        simulations_01_menu.add.button("Random", lambda: self.set_scene(SceneType.RANDOM))
+        simulations_01_menu.add.button("Connected motion", lambda: self.set_scene(SceneType.CONNECTED))
+        simulations_01_menu.add.button("To center", lambda: self.set_scene(SceneType.CENTER))
+        simulations_01_menu.add.button("Wall", lambda: self.set_scene(SceneType.WALL))
+        simulations_01_menu.add.button("Meta modul", lambda: self.set_scene(SceneType.META_MODUL))
+        simulations_01_menu.add.button("Meta modul 2", lambda: self.set_scene(SceneType.META_MODUL_2))
+        simulations_01_menu.add.button('Back', pygame_menu.events.BACK)
+
+        simulations_02_menu = pygame_menu.Menu(
+        "Simulations 02",
+        self.simulation.width,
+        self.simulation.height,
+        theme=pygame_menu.themes.THEME_DARK
+        )
+        simulations_02_menu.add.button('Back', pygame_menu.events.BACK)
+
+        self.menu_object.add.button("Simulations 01", simulations_01_menu)
+        self.menu_object.add.button("Simulations 02", simulations_02_menu)
         self.menu_object.add.button("Settings", lambda: self.set_scene(SceneType.SETTINGS))
         self.menu_object.add.button("Exit", lambda: self.set_scene(SceneType.EXIT))
         self.menu_object.enable()

@@ -45,7 +45,7 @@ Az egyik megvalósított intelligens viselkedés egy **kígyó-szerű mozgás**,
 - Python 3.8+
 - `pygame` a grafikus megjelenítéshez
 
-📁 src/
+📁 src/<br>
  ├─ amoebot.py           # Az amoebot osztály és működése<br>
  ├─ triangle_map.py      # Háromszög alapú rács és mozgáslogika<br>
  ├─ behaviors.py         # Viselkedés típusok és függvények<br>
