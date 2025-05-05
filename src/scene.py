@@ -139,6 +139,17 @@ class Scene:
         wall = self.create_meta_modul(start_row=6, start_col=0, rows=2, cols=6, color=(255,255,255))
         wall2 = self.create_meta_modul(start_row=0, start_col=Config.Grid.COLS-2, rows=Config.Grid.COLS, cols=2, color=(255,255,255))
     
+
+
+
+
+
+
+
+
+
+
+    
     def setup_wall_motion_scene(self):
         wall = self.create_meta_modul(start_row=6, start_col=0, rows=2, cols=10, color=(255,255,255))
         wall2 = self.create_meta_modul(start_row=0, start_col=Config.Grid.COLS-2, rows=Config.Grid.COLS, cols=2, color=(255,255,255))
