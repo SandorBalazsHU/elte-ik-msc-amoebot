@@ -41,3 +41,4 @@ class Config:
         BOT_NUMBER = 30
         show_grid = True
         jump_pos = True
+        replace_pos = True

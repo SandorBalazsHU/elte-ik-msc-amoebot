@@ -16,6 +16,7 @@ class SceneType(Enum):
     META_MODUL = auto()
     META_MODUL_2 = auto()
     SNAKE = auto()
+    CRAWLER = auto()
     SETTINGS = auto()
     EXIT = auto()
 class Scene:
@@ -51,6 +52,7 @@ class Scene:
             SceneType.META_MODUL: self.scene_library.setup_meta_modul_motion_scene,
             SceneType.META_MODUL_2: self.scene_library.setup_meta_modul_2_motion_scene,
             SceneType.SNAKE: self.scene_library.setup_snake_scene,
+            SceneType.CRAWLER: self.scene_library.setup_crawler_motion_scene,
             SceneType.SETTINGS: self.settings,
             SceneType.EXIT: self.exit
         }
@@ -94,6 +96,7 @@ class Scene:
         theme=pygame_menu.themes.THEME_DARK
         )
         simulations_02_menu.add.button("Snake", lambda: self.set_scene(SceneType.SNAKE))
+        simulations_02_menu.add.button("Crawler", lambda: self.set_scene(SceneType.CRAWLER))
         simulations_02_menu.add.button('Back', pygame_menu.events.BACK)
 
         self.menu_object.add.button("Simulations 01", simulations_01_menu)
@@ -113,8 +116,11 @@ class Scene:
             Config.Scene.show_grid = value
         def toggle_jump_pos(value):
             Config.Scene.jump_pos = value
+        def toggle_replace_pos(value):
+            Config.Scene.replace_pos = value
         self.menu_object.add.toggle_switch('Show Grid', Config.Scene.show_grid, onchange=toggle_grid, toggleswitch_id='Grid')
         self.menu_object.add.toggle_switch('Jump', Config.Scene.jump_pos, onchange=toggle_jump_pos, toggleswitch_id='Jump')
+        self.menu_object.add.toggle_switch('Replacing', Config.Scene.replace_pos, onchange=toggle_replace_pos, toggleswitch_id='Replacing')
         self.menu_object.add.button('Back', lambda: self.set_scene(SceneType.MENU))
         self.menu_object.enable()
 

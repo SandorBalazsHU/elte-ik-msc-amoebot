@@ -4,6 +4,16 @@ from src.config import Config
 from src.amoebot import Amoebot
 from src.behaviors import AmoebotState, BehaviorType, Behavior
 
+'''
+NE FELEDD:
+    0 = bal-fel
+    1 = jobb-fel
+    2 = bal
+    3 = jobb
+    4 = bal-le
+    5 = jobb-le
+'''
+
 class scene_library:
     def __init__(self, scene):
             self.scene = scene
@@ -17,19 +27,19 @@ class scene_library:
         for i in range(2, BOT_NUMBER + 1):
             bot = Amoebot(self.scene.simulation.triangle_map, i, 2)
             bot.set_behavior(BehaviorType.TO_HEADING)
-            bot.set_heading(3)
+            bot.set_heading(5)
             self.scene.simulation.amoebots.append(bot)
 
         for i in range(2, BOT_NUMBER + 1):
             bot = Amoebot(self.scene.simulation.triangle_map, i, 1)
             bot.set_behavior(BehaviorType.TO_HEADING)
-            bot.set_heading(3)
+            bot.set_heading(5)
             self.scene.simulation.amoebots.append(bot)
 
         for i in range(2, BOT_NUMBER + 1):
             bot = Amoebot(self.scene.simulation.triangle_map, i, 0)
             bot.set_behavior(BehaviorType.TO_HEADING)
-            bot.set_heading(3)
+            bot.set_heading(5)
             self.scene.simulation.amoebots.append(bot)
 
     def setup_center_motion_scene(self):
@@ -119,7 +129,7 @@ class scene_library:
         leader.color=(100,30,30)
         leader.set_state(AmoebotState.ACTIVE)
         leader.set_behavior(BehaviorType.TO_HEADING)
-        leader.set_heading(3)
+        leader.set_heading(5)
         self.scene.simulation.commanded_bots.append(leader)
 
         snake_body_01 = self.create_meta_modul(start_row=5, start_col=2, rows=4, cols=2, color=(255,255,30))

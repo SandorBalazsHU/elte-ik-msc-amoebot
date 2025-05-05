@@ -16,6 +16,7 @@ class Amoebot():
         self.triangle_map = triangle_map
         self.row = row
         self.col = col
+        self.step_counter = 0
         self.from_pos = (self.row, self.col)
         self.to_pos = (self.row, self.col)
         self.triangle_map.occupy(*self.to_pos)
@@ -117,23 +118,26 @@ class Amoebot():
                 did_step = True
         elif self.phase == "idle":
             self.update_idle()
+        if did_step:
+            self.step_counter += 1
+            #if self.step_counter % 2 == 0: Config.Scene.replace_pos
+            #self.triangle_map.release(*self.from_pos)
         return did_step
 
     def update_idle(self):
-        self.triangle_map.occupy(*self.to_pos)
-
         if self.state in {AmoebotState.ACTIVE, AmoebotState.ONE_STEP}:
             self.idle_timer += 1
             if self.idle_timer >= Config.Amoebot.IDLE_DELAY:
                 if self._target_select():
                     self.from_pos = (self.row, self.col)
-                    self.triangle_map.release(*self.from_pos)
                     self.to_pos = self.target
                     self.triangle_map.occupy(*self.to_pos)
                     self.phase = "expansion"
                     self.progress = 0.0
                     self.idle_timer = 0
                     self.update_connected()
+                    if Config.Scene.replace_pos:
+                        self.triangle_map.release(*self.from_pos)
 
     def update_expansion(self):
         self.progress += Config.Amoebot.SPEED
@@ -157,7 +161,8 @@ class Amoebot():
         self.progress += Config.Amoebot.SPEED
         if self.progress >= 1.0:
             self.row, self.col = self.to_pos
-            self.from_pos = self.to_pos
+            self.triangle_map.occupy(*self.to_pos)
+            self.triangle_map.release(*self.from_pos)
             self.phase = "idle"
             self.progress = 0.0
             self.idle_timer = 0
