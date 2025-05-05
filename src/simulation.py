@@ -17,6 +17,9 @@ class Simulation:
         self.drawer: AntiAliasedDrawer = None
         self.scene_manager: Scene = None
         self.grid_surface = None
+        self.step_counter = 0
+        self.step_counter_running = True
+        self.step_check_enabled = True
         self.init()
 
     def init(self):
@@ -41,6 +44,7 @@ class Simulation:
                     pygame.quit()
                     sys.exit()
                 if self.scene_manager.current_scene != SceneType.MENU:
+                    self.scene_manager.step_display.handle_event(event)
                     if self.scene_manager.menu_button.handle_event(event):
                         self.scene_manager.set_scene(SceneType.MENU)
 
@@ -58,9 +62,27 @@ class Simulation:
                     commanded_bot.draw(self.drawer)
                 for amoebot in self.amoebots:
                     if amoebot not in self.commanded_bots:
-                        amoebot.update()
+                        did_step = amoebot.update()
+                        self.updateCounter(did_step)
                         amoebot.draw(self.drawer)
                 self.scene_manager.menu_button.draw(self.screen)
+                self.scene_manager.step_display.draw(self.screen)
 
             pygame.display.flip()
             self.clock.tick(Config.Window.FPS)
+
+    def startCounter(self):
+        self.step_counter_running = True
+    
+    def stopCounter(self):
+        self.step_counter_running = False
+    
+    def resetCounter(self):
+        self.step_counter = 0
+
+    def updateCounter(self, did_step):
+        if self.step_counter_running and self.step_check_enabled and did_step:
+            self.step_counter += 1
+            self.step_check_enabled = False  # blokkoljuk a számlálást, amíg nem jön egy False
+        elif not did_step:
+            self.step_check_enabled = True  # újra engedélyezzük, ha nem lépett

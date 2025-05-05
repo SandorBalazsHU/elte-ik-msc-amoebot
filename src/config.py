@@ -5,7 +5,7 @@ class Config:
         WIDTH = 800
         HEIGHT = 600
         FPS = 30
-        CAPTION = "Amoebot simulator 🦠 v0.7"
+        CAPTION = "Amoebot simulator 🦠 v0.8"
         ICON_PATH = "src/assets/icon.png"
         BACKGROUND_COLOR = (30, 30, 30)
 
@@ -37,6 +37,7 @@ class Config:
         FONT2_SIZE = 15
         DEFAULT_BUTTON_COLOR = (220, 220, 220)
         DEFAULT_BUTTON_TEXT_COLOR = (0, 0, 0)
+        DEFAULT_TEXT_COLOR = (255, 255, 255)
         BOT_NUMBER = 30
         show_grid = True
         jump_pos = True

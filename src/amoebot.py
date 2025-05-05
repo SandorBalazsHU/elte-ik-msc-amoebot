@@ -109,12 +109,15 @@ class Amoebot():
         self.set_behavior(BehaviorType.STAY)
 
     def update(self):
-        if self.phase == "idle":
-            self.update_idle()
-        elif self.phase == "expansion":
+        did_step = False
+        if self.phase == "expansion":
             self.update_expansion()
         elif self.phase == "contraction":
-            self.update_contraction()
+            if self.update_contraction():  # true ha most lépett
+                did_step = True
+        elif self.phase == "idle":
+            self.update_idle()
+        return did_step
 
     def update_idle(self):
         self.triangle_map.occupy(*self.to_pos)
@@ -160,6 +163,8 @@ class Amoebot():
             self.idle_timer = 0
             if self.state == AmoebotState.ONE_STEP:
                 self.set_state(AmoebotState.PASSIVE)
+            return True  # => most lépett
+        return False
 
     def draw(self, drawer):
         p1 = self.triangle_map.triangle_grid[self.from_pos[0]][self.from_pos[1]]

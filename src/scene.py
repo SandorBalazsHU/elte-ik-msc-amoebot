@@ -5,6 +5,7 @@ from enum import Enum, auto
 
 from src.config import Config
 from src.menu_button import MenuButton
+from src.menu_button import StepCounterDisplay
 from src.amoebot import Amoebot
 from src.behaviors import AmoebotState, BehaviorType, Behavior
 
@@ -31,6 +32,16 @@ class Scene:
             "Menü",
             lambda: self.set_scene(SceneType.MENU)
         )
+
+        self.step_display = StepCounterDisplay(
+        pos=(120, 10),
+        font=self.FONT1,
+        color=Config.Scene.DEFAULT_BUTTON_COLOR,
+        text_color=Config.Scene.DEFAULT_BUTTON_TEXT_COLOR,
+        label_color=Config.Scene.DEFAULT_TEXT_COLOR
+        )
+        self.step_display.setSimulation(self.simulation)
+
         self.scene_map = {
             SceneType.MENU: self.menu,
             SceneType.RANDOM: self.setup_random_scene,
@@ -51,6 +62,8 @@ class Scene:
         handler = self.scene_map.get(scene_type)
         if handler:
             handler()
+        if scene_type not in {SceneType.MENU, SceneType.SETTINGS, SceneType.EXIT}:
+            self.simulation.resetCounter()
 
     def menu(self):
         self.menu_object = pygame_menu.Menu(
@@ -156,17 +169,6 @@ class Scene:
 
         wall = self.create_meta_modul(start_row=6, start_col=0, rows=2, cols=6, color=(255,255,255))
         wall2 = self.create_meta_modul(start_row=0, start_col=Config.Grid.COLS-2, rows=Config.Grid.COLS, cols=2, color=(255,255,255))
-    
-
-
-
-
-
-
-
-
-
-
     
     def setup_wall_motion_scene(self):
         wall = self.create_meta_modul(start_row=6, start_col=0, rows=2, cols=10, color=(255,255,255))
