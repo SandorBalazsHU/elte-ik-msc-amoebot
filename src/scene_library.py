@@ -27,6 +27,26 @@ class scene_library:
         for i in range(2, BOT_NUMBER + 1):
             bot = Amoebot(self.scene.simulation.triangle_map, i, 2)
             bot.set_behavior(BehaviorType.TO_HEADING)
+            bot.set_heading(3)
+            self.scene.simulation.amoebots.append(bot)
+
+        for i in range(2, BOT_NUMBER + 1):
+            bot = Amoebot(self.scene.simulation.triangle_map, i, 1)
+            bot.set_behavior(BehaviorType.TO_HEADING)
+            bot.set_heading(3)
+            self.scene.simulation.amoebots.append(bot)
+
+        for i in range(2, BOT_NUMBER + 1):
+            bot = Amoebot(self.scene.simulation.triangle_map, i, 0)
+            bot.set_behavior(BehaviorType.TO_HEADING)
+            bot.set_heading(3)
+            self.scene.simulation.amoebots.append(bot)
+
+    def setup_connected_motion_2_scene(self):
+        BOT_NUMBER = 12
+        for i in range(2, BOT_NUMBER + 1):
+            bot = Amoebot(self.scene.simulation.triangle_map, i, 2)
+            bot.set_behavior(BehaviorType.TO_HEADING)
             bot.set_heading(5)
             self.scene.simulation.amoebots.append(bot)
 
@@ -102,6 +122,11 @@ class scene_library:
 
         #wall = self.create_meta_modul(start_row=7, start_col=7, rows=1, cols=1, color=(255,255,255))
 
+    def setup_snake_stap_scene(self):
+        snake_head = self.create_array(start_row=5, start_col=4, rows=4, cols=2, color=(255,30,30), behavior = BehaviorType.TO_HEADING, heading = 3)
+        snake_body_01 = self.create_array(start_row=5, start_col=2, rows=4, cols=2, color=(255,255,30), behavior = BehaviorType.TO_HEADING, heading = 3)
+        snake_body_02 = self.create_array(start_row=5, start_col=0, rows=4, cols=2, color=(30,30,255), behavior = BehaviorType.TO_HEADING, heading = 3)
+
     def setup_snake_scene(self):
         snake_head = self.create_meta_modul(start_row=5, start_col=4, rows=4, cols=2, color=(255,30,30))
         leader = snake_head[3][1]
@@ -123,24 +148,24 @@ class scene_library:
         leader03.connect(back02)
 
     def setup_crawler_motion_scene(self):
-        snake_head = self.create_meta_modul(start_row=5, start_col=4, rows=4, cols=2, color=(255,30,30))
-        leader = snake_head[3][1]
-        back01 = snake_head[3][0]
+
+        bot = Amoebot(self.scene.simulation.triangle_map, 3, 3)
+        bot.color = (255,30,30)
+        bot.set_state(AmoebotState.ACTIVE)
+        bot.set_behavior(BehaviorType.INTELLIGENT)
+        Behavior.caterpillar_behavior(bot, x=4, y=2, shift=1)
+        bot.set_intelligent_behavior(Behavior.caterpillar_behavior)
+        self.scene.simulation.amoebots.append(bot)
+
+
+        '''snake_head = self.create_meta_modul(start_row=3, start_col=3, rows=2, cols=2, color=(255,30,30))
+        leader = snake_head[1][1]
         leader.color=(100,30,30)
         leader.set_state(AmoebotState.ACTIVE)
-        leader.set_behavior(BehaviorType.TO_HEADING)
-        leader.set_heading(5)
-        self.scene.simulation.commanded_bots.append(leader)
-
-        snake_body_01 = self.create_meta_modul(start_row=5, start_col=2, rows=4, cols=2, color=(255,255,30))
-        leader02 = snake_body_01[3][1]
-        back02 = snake_body_01[3][0]
-        leader02.connect(back01)
-
-        snake_body_02 = self.create_meta_modul(start_row=5, start_col=0, rows=4, cols=2, color=(30,30,255))
-        leader03 = snake_body_02[3][1]
-        back03 = snake_body_02[3][0]
-        leader03.connect(back02)
+        leader.set_behavior(BehaviorType.INTELLIGENT)
+        Behavior.caterpillar_behavior(leader, x=4, y=2, shift=1)
+        leader.set_intelligent_behavior(Behavior.caterpillar_behavior)
+        self.scene.simulation.commanded_bots.append(leader)'''
 
     def create_meta_modul(self, start_row: int, start_col: int, rows: int, cols: int, color = None):
         """
@@ -170,6 +195,35 @@ class scene_library:
                     current.connect(bots[r][c + 1])
                 if r + 1 < rows:
                     current.connect(bots[r + 1][c])
+        return bots
+
+    def create_array(self, start_row: int, start_col: int, rows: int, cols: int, color = None, behavior = None, heading = None):
+        """
+        Létrehoz egy összekapcsolt NxM-es amőbotblokkot a megadott kezdőpozíciótól.
+        Minden botot hozzáad a szimulációhoz, PASSIVE állapotra állít, és a megadott színt kapja.
+        
+        :param start_row: Kezdősor
+        :param start_col: Kezdőoszlop
+        :param rows: Blokk sorainak száma
+        :param cols: Blokk oszlopainak száma
+        :param color: Az amőbotok színe (RGB tuple)
+        :return: 2D lista az amőbotokkal
+        """
+        bots = [[None for _ in range(cols)] for _ in range(rows)]
+        for r in range(rows):
+            for c in range(cols):
+                bot = Amoebot(self.scene.simulation.triangle_map, start_row + r, start_col + c)
+                if color:
+                    bot.color = color
+                if behavior:
+                    bot.set_state(AmoebotState.ACTIVE)
+                    bot.set_behavior(behavior)
+                else:
+                    bot.set_state(AmoebotState.PASSIVE)
+                if heading:
+                    bot.set_heading(heading)
+                bots[r][c] = bot
+                self.scene.simulation.amoebots.append(bot)
         return bots
 
     def create_random_moving_amoebots(self, count: int, x_min: int, x_max: int, y_min: int, y_max: int):

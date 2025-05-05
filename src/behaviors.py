@@ -15,14 +15,14 @@ class BehaviorType(Enum):
     INTELLIGENT = auto()
 
 class Behavior:
-    def move_right(self):
-        self.target = (self.row, self.col + 1)
+    def move_right(bot):
+        bot.target = (bot.row, bot.col + 1)
 
-    def random_wander(self):
-        neighbors = self.triangle_map.get_neighbors(self.row, self.col)
-        free = [pos for pos in neighbors if not self.triangle_map.is_occupied(*pos)]
+    def random_wander(bot):
+        neighbors = bot.triangle_map.get_neighbors(bot.row, bot.col)
+        free = [pos for pos in neighbors if not bot.triangle_map.is_occupied(*pos)]
         if free:
-            self.target = random.choice(free)
+            bot.target = random.choice(free)
 
     def center_seek_behavior(bot):
         center_row = Config.Grid.ROWS // 2
@@ -50,6 +50,55 @@ class Behavior:
         if target:
             bot.target = target
 
+    def caterpillar_behavior(bot, x=None, y=None, shift=None):
+        # Ha x, y és shift paraméterek meg vannak adva, akkor mentse el őket és ne csináljon semmit
+        if x is not None and y is not None and shift is not None:
+            bot.tank_x = x
+            bot.tank_y = y
+            bot.tank_shift = shift
+            bot.tank_initialized = True  # Jelezze, hogy a bot készen áll a mozgásra
+            return  # Ha csak inicializálás van, ne csináljon semmit
+
+        # Ellenőrizzük, hogy a bot készen áll-e a mozgásra
+        if not hasattr(bot, 'tank_initialized') or not bot.tank_initialized:
+            return  # Ha nincs inicializálva, akkor nem csinál semmit
+
+        # Ha nincs shift, a bot a 0. pozícióról kezdje
+        if not hasattr(bot, 'tank_counter'):
+            bot.tank_counter = 0
+            bot.tank_phase = 0
+            bot.tank_position = bot.tank_shift or 0
+
+        # Mozgás fázisok: jobbra, le, balra, fel
+        if bot.tank_phase == 0:  # Jobbra
+            bot.heading = 3  # Jobbra
+            bot.tank_counter += 1
+            if bot.tank_counter >= bot.tank_x:
+                bot.tank_counter = 0
+                bot.tank_phase = 1  # Lépés a következő fázisra
+        elif bot.tank_phase == 1:  # Le
+            bot.heading = 5  # Le
+            bot.tank_counter += 1
+            if bot.tank_counter >= bot.tank_y:
+                bot.tank_counter = 0
+                bot.tank_phase = 2  # Lépés a következő fázisra
+        elif bot.tank_phase == 2:  # Balra
+            bot.heading = 2  # Balra
+            bot.tank_counter += 1
+            if bot.tank_counter >= bot.tank_x - 1:
+                bot.tank_counter = 0
+                bot.tank_phase = 3  # Lépés a következő fázisra
+        elif bot.tank_phase == 3:  # Fel
+            bot.heading = 0  # Fel
+            bot.tank_counter += 1
+            if bot.tank_counter >= bot.tank_x:
+                bot.tank_counter = 0
+                bot.tank_phase = 0  # Lépés az első fázisra (újra jobbra)
+
+        # A cél pozíció kiszámítása az irány és a lépések alapján
+        target = bot.triangle_map.get_valid_target_position(bot.row, bot.col, bot.heading)
+        if target:
+            bot.target = target
 
 #EXAMPLE:
 #bot.set_intelligent_behavior(center_seek_behavior)

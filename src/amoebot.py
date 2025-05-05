@@ -61,6 +61,7 @@ class Amoebot():
             return
         self.heading = heading
         self.set_state(AmoebotState.ONE_STEP)
+        self.set_behavior(BehaviorType.TO_HEADING)
 
     def update_connected(self, visited=None):
         if visited is None:
@@ -120,8 +121,6 @@ class Amoebot():
             self.update_idle()
         if did_step:
             self.step_counter += 1
-            #if self.step_counter % 2 == 0: Config.Scene.replace_pos
-            #self.triangle_map.release(*self.from_pos)
         return did_step
 
     def update_idle(self):

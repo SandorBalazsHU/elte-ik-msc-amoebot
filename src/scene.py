@@ -11,10 +11,12 @@ class SceneType(Enum):
     MENU = auto()
     RANDOM = auto()
     CONNECTED = auto()
+    CONNECTED2 = auto()
     CENTER = auto()
     WALL = auto()
     META_MODUL = auto()
     META_MODUL_2 = auto()
+    SNAKE_STAP = auto()
     SNAKE = auto()
     CRAWLER = auto()
     SETTINGS = auto()
@@ -47,10 +49,12 @@ class Scene:
             SceneType.MENU: self.menu,
             SceneType.RANDOM: self.scene_library.setup_random_scene,
             SceneType.CONNECTED: self.scene_library.setup_connected_motion_scene,
+            SceneType.CONNECTED2: self.scene_library.setup_connected_motion_2_scene,
             SceneType.CENTER: self.scene_library.setup_center_motion_scene,
             SceneType.WALL: self.scene_library.setup_wall_motion_scene,
             SceneType.META_MODUL: self.scene_library.setup_meta_modul_motion_scene,
             SceneType.META_MODUL_2: self.scene_library.setup_meta_modul_2_motion_scene,
+            SceneType.SNAKE_STAP: self.scene_library. setup_snake_stap_scene,
             SceneType.SNAKE: self.scene_library.setup_snake_scene,
             SceneType.CRAWLER: self.scene_library.setup_crawler_motion_scene,
             SceneType.SETTINGS: self.settings,
@@ -83,6 +87,7 @@ class Scene:
         )
         simulations_01_menu.add.button("Random", lambda: self.set_scene(SceneType.RANDOM))
         simulations_01_menu.add.button("Connected motion", lambda: self.set_scene(SceneType.CONNECTED))
+        simulations_01_menu.add.button("Connected motion 2", lambda: self.set_scene(SceneType.CONNECTED2))
         simulations_01_menu.add.button("To center", lambda: self.set_scene(SceneType.CENTER))
         simulations_01_menu.add.button("Wall", lambda: self.set_scene(SceneType.WALL))
         simulations_01_menu.add.button("Meta modul", lambda: self.set_scene(SceneType.META_MODUL))
@@ -95,6 +100,7 @@ class Scene:
         self.simulation.height,
         theme=pygame_menu.themes.THEME_DARK
         )
+        simulations_02_menu.add.button("Snake stap", lambda: self.set_scene(SceneType.SNAKE_STAP))
         simulations_02_menu.add.button("Snake", lambda: self.set_scene(SceneType.SNAKE))
         simulations_02_menu.add.button("Crawler", lambda: self.set_scene(SceneType.CRAWLER))
         simulations_02_menu.add.button('Back', pygame_menu.events.BACK)
@@ -119,7 +125,7 @@ class Scene:
         def toggle_replace_pos(value):
             Config.Scene.replace_pos = value
         self.menu_object.add.toggle_switch('Show Grid', Config.Scene.show_grid, onchange=toggle_grid, toggleswitch_id='Grid')
-        self.menu_object.add.toggle_switch('Jump', Config.Scene.jump_pos, onchange=toggle_jump_pos, toggleswitch_id='Jump')
+        #self.menu_object.add.toggle_switch('Jump', Config.Scene.jump_pos, onchange=toggle_jump_pos, toggleswitch_id='Jump')
         self.menu_object.add.toggle_switch('Replacing', Config.Scene.replace_pos, onchange=toggle_replace_pos, toggleswitch_id='Replacing')
         self.menu_object.add.button('Back', lambda: self.set_scene(SceneType.MENU))
         self.menu_object.enable()
