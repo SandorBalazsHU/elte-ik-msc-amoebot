@@ -51,54 +51,74 @@ class Behavior:
             bot.target = target
 
     def caterpillar_behavior(bot, x=None, y=None, shift=None):
-        # Ha x, y és shift paraméterek meg vannak adva, akkor mentse el őket és ne csináljon semmit
+        # Inicializálás fázis
         if x is not None and y is not None and shift is not None:
             bot.tank_x = x
             bot.tank_y = y
             bot.tank_shift = shift
-            bot.tank_initialized = True  # Jelezze, hogy a bot készen áll a mozgásra
-            return  # Ha csak inicializálás van, ne csináljon semmit
+            bot.tank_initialized = True
+            bot.tank_start_row = bot.row - shift  # eredeti sor, ahonnan indult
+            return
 
-        # Ellenőrizzük, hogy a bot készen áll-e a mozgásra
         if not hasattr(bot, 'tank_initialized') or not bot.tank_initialized:
-            return  # Ha nincs inicializálva, akkor nem csinál semmit
+            return
 
-        # Ha nincs shift, a bot a 0. pozícióról kezdje
         if not hasattr(bot, 'tank_counter'):
             bot.tank_counter = 0
             bot.tank_phase = 0
             bot.tank_position = bot.tank_shift or 0
 
-        # Mozgás fázisok: jobbra, le, balra, fel
+    def caterpillar_behavior(bot, x=None, y=None, shift=None):
+        # Inicializálás
+        if x is not None and y is not None and shift is not None:
+            bot.tank_x = x
+            bot.tank_y = y
+            bot.tank_shift = shift
+            bot.tank_initialized = True
+            bot.tank_start_row = bot.row - shift  # Indulási sor mentése
+            return
+
+        if not hasattr(bot, 'tank_initialized') or not bot.tank_initialized:
+            return
+
+        if not hasattr(bot, 'tank_counter'):
+            bot.tank_counter = 0
+            bot.tank_phase = 0
+
+        # Mozgásfázisok
         if bot.tank_phase == 0:  # Jobbra
-            bot.heading = 3  # Jobbra
+            bot.heading = 3
             bot.tank_counter += 1
             if bot.tank_counter >= bot.tank_x:
                 bot.tank_counter = 0
-                bot.tank_phase = 1  # Lépés a következő fázisra
+                bot.tank_phase = 1
+
         elif bot.tank_phase == 1:  # Le
-            bot.heading = 5  # Le
+            bot.heading = 5
             bot.tank_counter += 1
             if bot.tank_counter >= bot.tank_y:
                 bot.tank_counter = 0
-                bot.tank_phase = 2  # Lépés a következő fázisra
+                bot.tank_phase = 2
+
         elif bot.tank_phase == 2:  # Balra
-            bot.heading = 2  # Balra
+            bot.heading = 2
             bot.tank_counter += 1
             if bot.tank_counter >= bot.tank_x - 1:
                 bot.tank_counter = 0
-                bot.tank_phase = 3  # Lépés a következő fázisra
-        elif bot.tank_phase == 3:  # Fel
-            bot.heading = 0  # Fel
-            bot.tank_counter += 1
-            if bot.tank_counter >= bot.tank_x:
-                bot.tank_counter = 0
-                bot.tank_phase = 0  # Lépés az első fázisra (újra jobbra)
+                bot.tank_phase = 3
 
-        # A cél pozíció kiszámítása az irány és a lépések alapján
+        elif bot.tank_phase == 3:  # Fel
+            bot.heading = 0
+            if bot.row == bot.tank_start_row+1:
+                bot.tank_phase = 0
+                bot.heading = 3
+                bot.tank_counter += 1
+
+        # A célpozíció kiszámítása és beállítása
         target = bot.triangle_map.get_valid_target_position(bot.row, bot.col, bot.heading)
         if target:
             bot.target = target
+
 
 #EXAMPLE:
 #bot.set_intelligent_behavior(center_seek_behavior)
