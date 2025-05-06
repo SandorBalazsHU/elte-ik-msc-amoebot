@@ -68,7 +68,7 @@ class Behavior:
             bot.tank_phase = 0
             bot.tank_position = bot.tank_shift or 0
 
-    def caterpillar_behavior(bot, x=None, y=None, counter=None, phase=None):
+    def caterpillar_behavior(bot, x=None, y=None, counter=None, phase=None, start_row = None):
         # Inicializálás
         if x is not None:
             bot.tank_x = x
@@ -76,7 +76,7 @@ class Behavior:
             bot.tank_counter = counter
             bot.tank_phase = phase
             bot.tank_initialized = True
-            bot.tank_start_row = bot.row
+            bot.tank_start_row = start_row
             return
 
         # Mozgásfázisok
@@ -97,7 +97,7 @@ class Behavior:
         elif bot.tank_phase == 2:  # Balra
             bot.heading = 2
             bot.tank_counter += 1
-            if bot.tank_counter >= bot.tank_x - 1:
+            if bot.tank_counter >= bot.tank_x:
                 bot.tank_counter = 0
                 bot.tank_phase = 3
 

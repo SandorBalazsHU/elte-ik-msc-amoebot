@@ -149,17 +149,36 @@ class scene_library:
 
     def setup_crawler_motion_scene(self):
         self.scene.simulation.triangle_map.collision_detection = False
-        self.addCrawlerBot(row=4, col=1, counter=0, phase=0)
-        self.addCrawlerBot(row=4, col=2, counter=1, phase=0)
-        self.addCrawlerBot(row=4, col=3, counter=2, phase=0)
-        self.addCrawlerBot(row=4, col=4, counter=3, phase=0)
+        self.addCrawlerBot(row=4, col=2, counter=0, phase=0, start_row=4)
+        self.addCrawlerBot(row=4, col=3, counter=1, phase=0, start_row=4)
+        self.addCrawlerBot(row=4, col=4, counter=2, phase=0, start_row=4)
+        self.addCrawlerBot(row=4, col=5, counter=3, phase=0, start_row=4)
 
-    def addCrawlerBot(self, row, col, counter, phase, x=4, y=2):
+        self.addCrawlerBot(row=4, col=6, counter=0, phase=1, start_row=4)
+        self.addCrawlerBot(row=5, col=6, counter=1, phase=1, start_row=4)
+
+        self.addCrawlerBot(row=4, col=1, counter=1, phase=3, start_row=4)
+        self.addCrawlerBot(row=5, col=1, counter=0, phase=3, start_row=4)
+
+        self.addCrawlerBot(row=6, col=2, counter=3, phase=3, start_row=4)
+
+
+
+
+
+        #self.addCrawlerBot(row=6, col=3, counter=5, phase=2, start_row=4)
+        #self.addCrawlerBot(row=6, col=4, counter=4, phase=2, start_row=4)
+        #self.addCrawlerBot(row=6, col=5, counter=3, phase=2, start_row=4)
+        #self.addCrawlerBot(row=6, col=6, counter=2, phase=2, start_row=4)
+        self.addCrawlerBot(row=6, col=7, counter=0, phase=2, start_row=4, color=(0,255,0))
+
+    def addCrawlerBot(self, row, col, counter, phase, start_row, color=(255,0,0), x=4, y=2):
         bot = Amoebot(self.scene.simulation.triangle_map, row, col)
         bot.color = (255,30,30)
         bot.set_state(AmoebotState.ACTIVE)
         bot.set_behavior(BehaviorType.INTELLIGENT)
-        Behavior.caterpillar_behavior(bot, x=x, y=y, counter=counter, phase=phase)
+        bot.color = color
+        Behavior.caterpillar_behavior(bot, x=x, y=y, counter=counter, phase=phase, start_row=start_row)
         bot.set_intelligent_behavior(Behavior.caterpillar_behavior)
         self.scene.simulation.amoebots.append(bot)
         return bot
