@@ -267,7 +267,48 @@ A Scene osztály felelős a különböző színterek beállításáért, míg a 
       \subsection{A Simulation 01 - Az egyszerűbb szimulációk}
 
 \chapter{Mérések és eredményeik}
-  Tekintsük át az elvégzett méréseket és eredményeit.
+  Tekintsük át az elvégzett méréseket és az eredményeket.
+
+  \section{Kígyó mozgás hagyományos modellel}
+    Első körben a kígyó mozgást teszteltük metamodulok nélkül a hagyományos amőbot modellen.
+
+    Az első pár bot hamar célbaért, de sok időbe tellt mire az összes Bot célbaért.
+
+    \begin{figure}[H]
+      \centering
+      \includegraphics[width=0.6\textwidth]{images/mesurements/01_step_snake.png}
+      \caption{Hagyományos kígyó mozgás}
+      \label{fig:01_step_snake}
+    \end{figure}
+
+  \section{Kígyó mozgás az új modellben metamodulokkal.}
+    Ezután a kígyó mozgást teszteltük az új amőbot modellel és metamodulok alkalmazásával. Ekkor az összes bot egyidőben ért célba.
+
+    \begin{figure}[H]
+      \centering
+      \includegraphics[width=0.6\textwidth]{images/mesurements/02_blokk_snake.png}
+      \caption{Új metamodulos kígyó mozgás}
+      \label{fig:02_blokk_snake}
+    \end{figure}
+  
+  \section{Hernyótalpas előremozgás}
+    Ebben az esetben megvalúsítottuk az amőbotok hernyótalpszerű előremozgásának egyszerűbb változatát. Ez nagyon lassú volt, mivel itt egy vezérbot húzta magával lánctalpszerűen a többit, viszont egyszerűen implementálható. De szállítás esetén kétségtelenül hatékony lehet, bár a lábas és a kígyózó megoldás gyorsabb volt.
+
+    \begin{figure}[H]
+      \centering
+      \includegraphics[width=0.6\textwidth]{images/mesurements/03_rawler.png}
+      \caption{Hernyótalpas mogás}
+      \label{fig:03_rawler}
+    \end{figure}
+    
+  \section{Százlábú szerű mozgás}
+    Implementáltuk a százlábú szerű előremozgás egy változatát. Ez a kígyó mozgáshoz hasonló lépésszámot produkált.
+    \begin{figure}[H]
+      \centering
+      \includegraphics[width=0.6\textwidth]{images/mesurements/04_caterpillar.png}
+      \caption{Százlábú mogás}
+      \label{fig:04_caterpillar}
+    \end{figure}
 
   \section{Mérési eredmények}
     \begin{table}[h!]
