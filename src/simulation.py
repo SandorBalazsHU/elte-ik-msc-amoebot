@@ -1,6 +1,6 @@
 import pygame
 import sys
-
+import math
 from src.config import Config
 from src.scene import Scene, SceneType
 from src.triangle_map import TriangleMap
@@ -18,8 +18,8 @@ class Simulation:
         self.scene_manager: Scene = None
         self.grid_surface = None
         self.step_counter = 0
+        self.max_step_counter = 0
         self.step_counter_running = True
-        self.step_check_enabled = True
         self.init()
 
     def init(self):
@@ -57,16 +57,17 @@ class Simulation:
             else:
                 if Config.Scene.show_grid:
                     self.screen.blit(self.grid_surface, (0, 0))
+                self.updateStepCounter()
                 for commanded_bot in self.commanded_bots:
                     commanded_bot.update()
                     commanded_bot.draw(self.drawer)
                 for amoebot in self.amoebots:
                     if amoebot not in self.commanded_bots:
                         did_step = amoebot.update()
-                        self.updateCounter(did_step)
                         amoebot.draw(self.drawer)
                 self.scene_manager.menu_button.draw(self.screen)
                 self.scene_manager.step_display.draw(self.screen)
+                self.stepCounting()
 
             pygame.display.flip()
             self.clock.tick(Config.Window.FPS)
@@ -79,10 +80,26 @@ class Simulation:
     
     def resetCounter(self):
         self.step_counter = 0
+        self.max_step_counter = 0
 
-    def updateCounter(self, did_step):
-        if self.step_counter_running and self.step_check_enabled and did_step:
-            self.step_counter += 1
-            self.step_check_enabled = False  # blokkoljuk a számlálást, amíg nem jön egy False
-        elif not did_step:
-            self.step_check_enabled = True  # újra engedélyezzük, ha nem lépett
+    def stepCounting(self):
+        if not hasattr(self, "animation_progress_time"):
+            self.animation_progress_time = 0.0
+
+        # Minden frame hozzáadódik
+        self.animation_progress_time += 1
+
+        # Számoljuk ki, mennyi frame egy teljes lépés:
+        idle = Config.Amoebot.IDLE_DELAY
+        speed = Config.Amoebot.SPEED
+        anim_frames = 2 * math.ceil(1.0 / speed)
+        total_step_frames = idle + anim_frames
+
+        while self.animation_progress_time >= total_step_frames:
+            if self.step_counter_running:
+                self.step_counter += 1
+            self.animation_progress_time -= total_step_frames
+        
+    def updateStepCounter(self):
+        if self.amoebots:
+            self.max_step_counter = max(bot.step_counter for bot in self.amoebots)

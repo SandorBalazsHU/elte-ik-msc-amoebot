@@ -75,8 +75,10 @@ class StepCounterDisplay:
         # Lépésszám érték kirajzolása
         if self.simulation:
             steps_label = self.font.render(f"Steps: {self.simulation.step_counter}", True, self.label_color)
+            max_steps_label = self.font.render(f"Max steps: {self.simulation.max_step_counter}", True, self.label_color)
             step_x = self.buttons['Reset'].right + self.BUTTON_SPACING_X
             surface.blit(steps_label, (step_x, self.y + self.LABEL_OFFSET_Y))
+            surface.blit(max_steps_label, (step_x + 120, self.y + self.LABEL_OFFSET_Y))
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
