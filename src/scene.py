@@ -19,6 +19,8 @@ class SceneType(Enum):
     SNAKE_STAP = auto()
     SNAKE = auto()
     CRAWLER = auto()
+    TUNELLING = auto()
+    CATERPILLAR = auto()
     SETTINGS = auto()
     EXIT = auto()
 class Scene:
@@ -57,6 +59,8 @@ class Scene:
             SceneType.SNAKE_STAP: self.scene_library. setup_snake_stap_scene,
             SceneType.SNAKE: self.scene_library.setup_snake_scene,
             SceneType.CRAWLER: self.scene_library.setup_crawler_motion_scene,
+            SceneType.TUNELLING: self.scene_library.setup_tunelling_scene,
+            SceneType.CATERPILLAR: self.scene_library.setup_caterpillar_scene,
             SceneType.SETTINGS: self.settings,
             SceneType.EXIT: self.exit
         }
@@ -65,6 +69,7 @@ class Scene:
         self.simulation.amoebots.clear()
         self.simulation.commanded_bots.clear()
         self.simulation.triangle_map.clear_occupied()
+        self.simulation.triangle_map.collision_detection = True
         self.current_scene = scene_type
         handler = self.scene_map.get(scene_type)
         if handler:
@@ -103,6 +108,8 @@ class Scene:
         simulations_02_menu.add.button("Snake stap", lambda: self.set_scene(SceneType.SNAKE_STAP))
         simulations_02_menu.add.button("Snake", lambda: self.set_scene(SceneType.SNAKE))
         simulations_02_menu.add.button("Crawler", lambda: self.set_scene(SceneType.CRAWLER))
+        simulations_02_menu.add.button("Tunnelling", lambda: self.set_scene(SceneType.TUNELLING))
+        simulations_02_menu.add.button("Caterpillar", lambda: self.set_scene(SceneType.CATERPILLAR))
         simulations_02_menu.add.button('Back', pygame_menu.events.BACK)
 
         self.menu_object.add.button("Simulations 01", simulations_01_menu)

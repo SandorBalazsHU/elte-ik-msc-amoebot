@@ -147,6 +147,60 @@ class scene_library:
         back03 = snake_body_02[3][0]
         leader03.connect(back02)
 
+    def setup_tunelling_scene(self):
+        bots1 = self.create_meta_modul(start_row=0, start_col=0, rows=5, cols=4, color=(255,0,0))
+        leader1 = bots1[2][3]
+        leader1.color=(125,0,0)
+        leader1.set_state(AmoebotState.ACTIVE)
+        leader1.set_behavior(BehaviorType.TO_HEADING)
+        leader1.set_heading(3)
+        self.scene.simulation.commanded_bots.append(leader1)
+    
+        bots2 = self.create_meta_modul(start_row=5, start_col=11, rows=5, cols=4, color=(0,255,0))
+        leader2 = bots2[2][0]
+        leader2.color=(0,125,0)
+        leader2.set_state(AmoebotState.ACTIVE)
+        leader2.set_behavior(BehaviorType.TO_HEADING)
+        leader2.set_heading(2)
+        self.scene.simulation.commanded_bots.append(leader2)
+
+        bots3 = self.create_meta_modul(start_row=10, start_col=0, rows=5, cols=4, color=(0,0,255))
+        leader3 = bots3[2][3]
+        leader3.color=(0,0,125)
+        leader3.set_state(AmoebotState.ACTIVE)
+        leader3.set_behavior(BehaviorType.TO_HEADING)
+        leader3.set_heading(3)
+        self.scene.simulation.commanded_bots.append(leader3)
+
+    def setup_caterpillar_scene(self):
+        bots1 = self.create_meta_modul(start_row=10, start_col=0, rows=2, cols=6, color=(255,0,0))
+        leader1 = bots1[0][5]
+        leader1.color=(125,0,0)
+        leader1.set_state(AmoebotState.ACTIVE)
+        leader1.set_behavior(BehaviorType.TO_HEADING)
+        leader1.set_heading(3)
+        self.scene.simulation.commanded_bots.append(leader1)
+
+        start_points = [0,2,4,6]
+        for i in start_points:
+            bots2 = self.create_meta_modul(start_row=12, start_col=i, rows=3, cols=1, color=(0,255,0))
+            leader2 = bots2[1][0]
+            leader2.color=(0,125,0)
+            leader2.set_state(AmoebotState.ACTIVE)
+            leader2.set_behavior(BehaviorType.TO_HEADING)
+            leader2.set_heading(3)
+            self.scene.simulation.commanded_bots.append(leader2)
+
+        start_points = [1,3,5]
+        for i in start_points:
+            bots2 = self.create_meta_modul(start_row=12, start_col=i, rows=3, cols=1, color=(30,30,30))
+            leader2 = bots2[1][0]
+            leader2.color=(30,30,30)
+            leader2.set_state(AmoebotState.ACTIVE)
+            leader2.set_behavior(BehaviorType.TO_HEADING)
+            leader2.set_heading(3)
+            self.scene.simulation.commanded_bots.append(leader2)
+
     def setup_crawler_motion_scene(self):
         self.scene.simulation.triangle_map.collision_detection = False
         self.addCrawlerBot(row=4, col=2, counter=0, phase=0, start_row=4)
@@ -162,15 +216,15 @@ class scene_library:
 
         self.addCrawlerBot(row=6, col=2, counter=3, phase=3, start_row=4)
 
-
-
-
-
         #self.addCrawlerBot(row=6, col=3, counter=5, phase=2, start_row=4)
         #self.addCrawlerBot(row=6, col=4, counter=4, phase=2, start_row=4)
         #self.addCrawlerBot(row=6, col=5, counter=3, phase=2, start_row=4)
         #self.addCrawlerBot(row=6, col=6, counter=2, phase=2, start_row=4)
-        self.addCrawlerBot(row=6, col=7, counter=0, phase=2, start_row=4, color=(0,255,0))
+        self.addCrawlerBot(row=6, col=7, counter=0, phase=2, start_row=4)
+        self.addCrawlerBot(row=6, col=6, counter=1, phase=2, start_row=4)
+        self.addCrawlerBot(row=6, col=5, counter=2, phase=2, start_row=4)
+        #self.addCrawlerBot(row=6, col=4, counter=3, phase=2, start_row=4)
+        #self.addCrawlerBot(row=6, col=3, counter=4, phase=2, start_row=4)
 
     def addCrawlerBot(self, row, col, counter, phase, start_row, color=(255,0,0), x=4, y=2):
         bot = Amoebot(self.scene.simulation.triangle_map, row, col)
