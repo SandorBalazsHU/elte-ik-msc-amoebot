@@ -219,7 +219,78 @@ A Scene osztály felelős a különböző színterek beállításáért, míg a 
     \section{Összegzés}
     A szimuláció során az amőbák a rácsos világban mozognak, és különböző viselkedéseket alkalmaznak. Az amőbák mozgása és interakciói jól definiált szabályok szerint történnek, figyelembe véve a lépésszámlálást, pozíciók felszabadítását és a viselkedés típusokat. Az implementáció rugalmasan bővíthető további viselkedésekkel és interakciókkal.
     
+\chapter{Szimulációk}
+    Ebbena  fejezetben ismertetjük a szimulátor használatát és a megvalósított szimulációkat és méréseket
+    \section{A menük}
+      Most ismerjük meg a menürendszert.
+
+      \subsection{A főmenü}
+        A program indítása utána  főmenü fogad minket.
+
+        \begin{figure}[H]
+          \centering
+          \includegraphics[width=0.6\textwidth]{images/simulatons/main_menu.png}
+          \caption{A főmenü}
+          \label{fig:main_menu}
+        \end{figure}
+
+        \subsection{A Simulation 01}
+        A ebben a menüben érhetőek el az egyszerűbb szimulácik a szimulátor bemutatására.
+
+        \begin{figure}[H]
+          \centering
+          \includegraphics[width=0.6\textwidth]{images/simulatons/Simulation01.png}
+          \caption{A Simulation 01 menü}
+          \label{fig:Simulation01}
+        \end{figure}
+
+        \subsection{A Simulation 01}
+        A ebben a menüben érhetőek el az összetettebb szimulácik.
+
+        \begin{figure}[H]
+          \centering
+          \includegraphics[width=0.6\textwidth]{images/simulatons/Simulation02.png}
+          \caption{A Simulation 02 menü}
+          \label{fig:Simulation01}
+        \end{figure}
+
+        \subsection{A Settings menü}
+        A ebben a menüben érhetőek el a szimulátor beállításai.
+
+        \begin{figure}[H]
+          \centering
+          \includegraphics[width=0.6\textwidth]{images/simulatons/settings.png}
+          \caption{A Simulation 02 menü}
+          \label{fig:settings}
+        \end{figure}
+
+      \subsection{A Simulation 01 - Az egyszerűbb szimulációk}
+
+\chapter{Mérések és eredményeik}
+  Tekintsük át az elvégzett méréseket és eredményeit.
+
+  \section{Mérési eredmények}
+    \begin{table}[h!]
+      \centering
+      \begin{tabular}{|l|c|c|}
+      \hline
+      \textbf{Mozgásforma} & \textbf{Lépésszám} & \textbf{Maximális lépésszám} \\
+      \hline
+      Kígyó mozgás (hagyományos modell) & 14 & 9 \\
+      Kígyó mozgás (fejlesztett modell) & 9 & 9 \\
+      Lánctalp mozgás & 97 & 97 \\
+      Lépegető mozgás & 9 & 9 \\
+      \hline
+      \end{tabular}
+      \caption{Amőbot szimulációs eredmények különböző mozgásformák esetén}
+      \label{tab:amobot_eredmenyek}
+      \end{table}
+  
+      \begin{figure}[H]
+        \centering
+        \includegraphics[width=1.0\textwidth]{images/mesurements/stat.png}
+        \caption{A szimulációs statisztikák}
+        \label{fig:stat}
+      \end{figure}
 
 \end{document}
-
-\chapter{Szimulációk}
