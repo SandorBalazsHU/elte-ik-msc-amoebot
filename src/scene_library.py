@@ -148,24 +148,21 @@ class scene_library:
         leader03.connect(back02)
 
     def setup_crawler_motion_scene(self):
+        self.scene.simulation.triangle_map.collision_detection = False
+        self.addCrawlerBot(row=4, col=1, shift=1)
+        #self.addCrawlerBot(row=4, col=2, shift=2)
+        #self.addCrawlerBot(row=4, col=3, shift=3)
+        #self.addCrawlerBot(row=4, col=4, shift=4)
 
-        bot = Amoebot(self.scene.simulation.triangle_map, 3, 3)
+    def addCrawlerBot(self, row, col, shift, x=4, y=2):
+        bot = Amoebot(self.scene.simulation.triangle_map, row, col)
         bot.color = (255,30,30)
         bot.set_state(AmoebotState.ACTIVE)
         bot.set_behavior(BehaviorType.INTELLIGENT)
-        Behavior.caterpillar_behavior(bot, x=4, y=2, shift=1)
+        Behavior.caterpillar_behavior(bot, x=x, y=y, shift=shift)
         bot.set_intelligent_behavior(Behavior.caterpillar_behavior)
         self.scene.simulation.amoebots.append(bot)
-
-
-        '''snake_head = self.create_meta_modul(start_row=3, start_col=3, rows=2, cols=2, color=(255,30,30))
-        leader = snake_head[1][1]
-        leader.color=(100,30,30)
-        leader.set_state(AmoebotState.ACTIVE)
-        leader.set_behavior(BehaviorType.INTELLIGENT)
-        Behavior.caterpillar_behavior(leader, x=4, y=2, shift=1)
-        leader.set_intelligent_behavior(Behavior.caterpillar_behavior)
-        self.scene.simulation.commanded_bots.append(leader)'''
+        return bot
 
     def create_meta_modul(self, start_row: int, start_col: int, rows: int, cols: int, color = None):
         """

@@ -89,7 +89,7 @@ class Behavior:
         if bot.tank_phase == 0:  # Jobbra
             bot.heading = 3
             bot.tank_counter += 1
-            if bot.tank_counter >= bot.tank_x:
+            if bot.tank_counter >= bot.tank_x + 1 - bot.tank_shift:
                 bot.tank_counter = 0
                 bot.tank_phase = 1
 
@@ -103,13 +103,14 @@ class Behavior:
         elif bot.tank_phase == 2:  # Balra
             bot.heading = 2
             bot.tank_counter += 1
-            if bot.tank_counter >= bot.tank_x - 1:
+            if bot.tank_counter >= bot.tank_x - bot.tank_shift:
                 bot.tank_counter = 0
                 bot.tank_phase = 3
 
         elif bot.tank_phase == 3:  # Fel
             bot.heading = 0
-            if bot.row == bot.tank_start_row+1:
+            if bot.row <= bot.tank_start_row + 1:
+                bot.tank_counter = 0
                 bot.tank_phase = 0
                 bot.heading = 3
                 bot.tank_counter += 1

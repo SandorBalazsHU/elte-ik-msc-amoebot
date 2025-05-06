@@ -19,12 +19,16 @@ class TriangleMap:
         self.occupied = []
         self.__generate_triangle_grid()
         self.clear_occupied()
+        self.collision_detection = True
 
     def clear_occupied(self):
         self.occupied = [[False for _ in range(Config.Grid.COLS)] for _ in range(Config.Grid.ROWS)]
 
     def is_occupied(self, row, col):
-        return self.occupied[row][col]
+        if self.collision_detection:
+            return self.occupied[row][col]
+        else:
+            return False
 
     def occupy(self, row, col):
         self.occupied[row][col] = True
