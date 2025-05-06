@@ -68,28 +68,22 @@ class Behavior:
             bot.tank_phase = 0
             bot.tank_position = bot.tank_shift or 0
 
-    def caterpillar_behavior(bot, x=None, y=None, shift=None):
+    def caterpillar_behavior(bot, x=None, y=None, counter=None, phase=None):
         # Inicializálás
-        if x is not None and y is not None and shift is not None:
+        if x is not None:
             bot.tank_x = x
             bot.tank_y = y
-            bot.tank_shift = shift
+            bot.tank_counter = counter
+            bot.tank_phase = phase
             bot.tank_initialized = True
-            bot.tank_start_row = bot.row - shift  # Indulási sor mentése
+            bot.tank_start_row = bot.row
             return
-
-        if not hasattr(bot, 'tank_initialized') or not bot.tank_initialized:
-            return
-
-        if not hasattr(bot, 'tank_counter'):
-            bot.tank_counter = 0
-            bot.tank_phase = 0
 
         # Mozgásfázisok
         if bot.tank_phase == 0:  # Jobbra
             bot.heading = 3
             bot.tank_counter += 1
-            if bot.tank_counter >= bot.tank_x + 1 - bot.tank_shift:
+            if bot.tank_counter >= bot.tank_x:
                 bot.tank_counter = 0
                 bot.tank_phase = 1
 
@@ -103,17 +97,17 @@ class Behavior:
         elif bot.tank_phase == 2:  # Balra
             bot.heading = 2
             bot.tank_counter += 1
-            if bot.tank_counter >= bot.tank_x - bot.tank_shift:
+            if bot.tank_counter >= bot.tank_x - 1:
                 bot.tank_counter = 0
                 bot.tank_phase = 3
 
         elif bot.tank_phase == 3:  # Fel
             bot.heading = 0
-            if bot.row <= bot.tank_start_row + 1:
+            if bot.row == bot.tank_start_row:
                 bot.tank_counter = 0
                 bot.tank_phase = 0
                 bot.heading = 3
-                bot.tank_counter += 1
+                #bot.tank_counter += 1
 
         # A célpozíció kiszámítása és beállítása
         target = bot.triangle_map.get_valid_target_position(bot.row, bot.col, bot.heading)

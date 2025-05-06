@@ -149,17 +149,17 @@ class scene_library:
 
     def setup_crawler_motion_scene(self):
         self.scene.simulation.triangle_map.collision_detection = False
-        self.addCrawlerBot(row=4, col=1, shift=1)
-        #self.addCrawlerBot(row=4, col=2, shift=2)
-        #self.addCrawlerBot(row=4, col=3, shift=3)
-        #self.addCrawlerBot(row=4, col=4, shift=4)
+        self.addCrawlerBot(row=4, col=1, counter=0, phase=0)
+        self.addCrawlerBot(row=4, col=2, counter=1, phase=0)
+        self.addCrawlerBot(row=4, col=3, counter=2, phase=0)
+        self.addCrawlerBot(row=4, col=4, counter=3, phase=0)
 
-    def addCrawlerBot(self, row, col, shift, x=4, y=2):
+    def addCrawlerBot(self, row, col, counter, phase, x=4, y=2):
         bot = Amoebot(self.scene.simulation.triangle_map, row, col)
         bot.color = (255,30,30)
         bot.set_state(AmoebotState.ACTIVE)
         bot.set_behavior(BehaviorType.INTELLIGENT)
-        Behavior.caterpillar_behavior(bot, x=x, y=y, shift=shift)
+        Behavior.caterpillar_behavior(bot, x=x, y=y, counter=counter, phase=phase)
         bot.set_intelligent_behavior(Behavior.caterpillar_behavior)
         self.scene.simulation.amoebots.append(bot)
         return bot
